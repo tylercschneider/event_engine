@@ -7,7 +7,9 @@ gemspec
 group :development, :test do
   # Needed for the dummy app database
   gem "sqlite3"
+  gem "sprockets-rails"
 end
+
 
 # Start debugger with binding.b [https://github.com/ruby/debug]
 # gem "debug", ">= 1.0.0"
