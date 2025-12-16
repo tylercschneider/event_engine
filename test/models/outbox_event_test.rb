@@ -29,5 +29,15 @@ module EventEngine
 
       assert_not event.valid?
     end
+
+    test "outbox event is unpublished by default" do
+      event = OutboxEvent.create!(
+        event_type: "example.event",
+        event_name: "example.event",
+        payload: {filler: "dummy"}
+      )
+
+      assert_nil event.published_at
+    end
   end
 end
