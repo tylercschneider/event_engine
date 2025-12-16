@@ -7,6 +7,7 @@ module EventEngine
     validates :payload, presence: true
     validates :idempotency_key, uniqueness: true, allow_nil: true
 
+    scope :ordered, -> { order(:created_at) }
     scope :unpublished, -> { where(published_at: nil) }
 
     def mark_published!

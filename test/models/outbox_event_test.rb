@@ -105,5 +105,22 @@ module EventEngine
       end
     end
 
+    test "unpublished events are ordered by created_at ascending" do
+      older = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "a" }
+      )
+
+      travel 1.second
+
+      newer = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "b" }
+      )
+
+      assert_equal [older, newer], OutboxEvent.unpublished.ordered.to_a
+    end
   end
 end
