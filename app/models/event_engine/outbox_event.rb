@@ -5,5 +5,9 @@ module EventEngine
     validates :event_name, presence: true
     validates :event_type, presence: true
     validates :payload, presence: true
+
+    def mark_published!
+      update!(published_at: Time.current)
+    end
   end
 end

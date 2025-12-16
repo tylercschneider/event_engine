@@ -39,5 +39,17 @@ module EventEngine
 
       assert_nil event.published_at
     end
+
+    test "mark_published! sets published_at" do
+      event = OutboxEvent.create!(
+        event_type: "example.event",
+        event_name: "example.event",
+        payload: {filler: "dummy"}
+      )
+
+      event.mark_published!
+
+      assert_not_nil event.published_at
+    end
   end
 end
