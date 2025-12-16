@@ -51,5 +51,22 @@ module EventEngine
 
       assert_not_nil event.published_at
     end
+
+    test "unpublished scope returns only unpublished events" do
+      published = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "x" },
+        published_at: Time.current
+      )
+
+      unpublished = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "y" }
+      )
+
+      assert_equal [unpublished], OutboxEvent.unpublished.to_a
+    end
   end
 end

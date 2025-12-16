@@ -6,6 +6,8 @@ module EventEngine
     validates :event_type, presence: true
     validates :payload, presence: true
 
+    scope :unpublished, -> { where(published_at: nil) }
+
     def mark_published!
       update!(published_at: Time.current)
     end
