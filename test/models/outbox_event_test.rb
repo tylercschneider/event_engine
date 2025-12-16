@@ -2,6 +2,7 @@ require "test_helper"
 
 module EventEngine
   class OutboxEventTest < ActiveSupport::TestCase
+    # validations
     test "persists an outbox event" do
       event = OutboxEvent.create!(
         event_name: "example.event",
@@ -30,6 +31,25 @@ module EventEngine
       assert_not event.valid?
     end
 
+    test "duplicate idempotency_key is rejected" do
+      OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "a" },
+        idempotency_key: "abc-123"
+      )
+
+      duplicate = OutboxEvent.new(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "b" },
+        idempotency_key: "abc-123"
+      )
+
+      assert_not duplicate.valid?
+    end
+
+    # lifecycle
     test "outbox event is unpublished by default" do
       event = OutboxEvent.create!(
         event_type: "example.event",
@@ -52,41 +72,7 @@ module EventEngine
       assert_not_nil event.published_at
     end
 
-    test "unpublished scope returns only unpublished events" do
-      published = OutboxEvent.create!(
-        event_type: "OrderCreated",
-        event_name: "order.created",
-        payload: { filler: "x" },
-        published_at: Time.current
-      )
-
-      unpublished = OutboxEvent.create!(
-        event_type: "OrderCreated",
-        event_name: "order.created",
-        payload: { filler: "y" }
-      )
-
-      assert_equal [unpublished], OutboxEvent.unpublished.to_a
-    end
-
-    test "duplicate idempotency_key is rejected" do
-      OutboxEvent.create!(
-        event_type: "OrderCreated",
-        event_name: "order.created",
-        payload: { filler: "a" },
-        idempotency_key: "abc-123"
-      )
-
-      duplicate = OutboxEvent.new(
-        event_type: "OrderCreated",
-        event_name: "order.created",
-        payload: { filler: "b" },
-        idempotency_key: "abc-123"
-      )
-
-      assert_not duplicate.valid?
-    end
-
+    # idempotency
     test "duplicate idempotency_key raises at the database level" do
       OutboxEvent.create!(
         event_type: "OrderCreated",
@@ -103,6 +89,24 @@ module EventEngine
           idempotency_key: "abc-123"
         ).save!(validate: false)
       end
+    end
+
+    # querying
+    test "unpublished scope returns only unpublished events" do
+      published = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "x" },
+        published_at: Time.current
+      )
+
+      unpublished = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "y" }
+      )
+
+      assert_equal [unpublished], OutboxEvent.unpublished.to_a
     end
 
     test "unpublished events are ordered by created_at ascending" do
