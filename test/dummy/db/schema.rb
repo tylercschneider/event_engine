@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_16_195234) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_16_202259) do
   create_table "event_engine_outbox_events", force: :cascade do |t|
+    t.string "event_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-
-    t.string "event_name"
     t.string "event_type", null: false
+    t.json "payload", null: false
   end
 
 end
