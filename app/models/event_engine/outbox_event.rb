@@ -5,6 +5,7 @@ module EventEngine
     validates :event_name, presence: true
     validates :event_type, presence: true
     validates :payload, presence: true
+    validates :idempotency_key, uniqueness: true, allow_nil: true
 
     scope :unpublished, -> { where(published_at: nil) }
 

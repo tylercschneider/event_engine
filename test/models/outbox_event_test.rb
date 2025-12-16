@@ -68,5 +68,23 @@ module EventEngine
 
       assert_equal [unpublished], OutboxEvent.unpublished.to_a
     end
+
+    test "duplicate idempotency_key is rejected" do
+      OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "a" },
+        idempotency_key: "abc-123"
+      )
+
+      duplicate = OutboxEvent.new(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "b" },
+        idempotency_key: "abc-123"
+      )
+
+      assert_not duplicate.valid?
+    end
   end
 end
