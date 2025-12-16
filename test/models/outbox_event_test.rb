@@ -9,5 +9,11 @@ module EventEngine
 
       assert event.persisted?
     end
+
+    test "outbox event is invalid without event_name" do
+      event = OutboxEvent.new()
+
+      assert_not event.valid?
+    end
   end
 end
