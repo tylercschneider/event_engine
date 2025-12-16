@@ -5,7 +5,8 @@ module EventEngine
     test "persists an outbox event" do
       event = OutboxEvent.create!(
         event_name: "example.event",
-        event_type: "example.event"
+        event_type: "example.event",
+        payload: {filler: "dummy"}
       )
 
       assert event.persisted?
@@ -16,8 +17,15 @@ module EventEngine
 
       assert_not event.valid?
     end
+
     test "outbox event is invalid without event_type" do
       event = OutboxEvent.new(event_name: "example.event")
+
+      assert_not event.valid?
+    end
+
+    test "outbox event is invalid without payload" do
+      event = OutboxEvent.new(event_name: "example.event", event_type: "example.event")
 
       assert_not event.valid?
     end

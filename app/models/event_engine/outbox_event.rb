@@ -4,5 +4,6 @@ module EventEngine
 
     validates :event_name, presence: true
     validates :event_type, presence: true
+    validates :payload, presence: true
   end
 end
