@@ -86,5 +86,24 @@ module EventEngine
 
       assert_not duplicate.valid?
     end
+
+    test "duplicate idempotency_key raises at the database level" do
+      OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "a" },
+        idempotency_key: "abc-123"
+      )
+
+      assert_raises ActiveRecord::RecordNotUnique do
+        OutboxEvent.new(
+          event_type: "OrderCreated",
+          event_name: "order.created",
+          payload: { filler: "b" },
+          idempotency_key: "abc-123"
+        ).save!(validate: false)
+      end
+    end
+
   end
 end
