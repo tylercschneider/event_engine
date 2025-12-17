@@ -3,14 +3,15 @@ require "test_helper"
 module EventEngine
   class EventEmitterTest < ActiveSupport::TestCase
     test "creates an OutboxEvent from an EventDefinition and payload" do
-      definition = Class.new(EventDefinition) do
-        def build_payload
-          { random: "filler" }
+      definition = Class.new do
+        def to_outbox_attributes
+          {
+            event_name: "order.shipped",
+            event_type: "domain",
+            payload: { order_id: 123 }
+          }
         end
-      end.new(
-        event_name: "order.shipped",
-        event_type: "domain"
-      )
+      end.new
 
       outbox_event = EventEmitter.emit(definition: definition)
 
