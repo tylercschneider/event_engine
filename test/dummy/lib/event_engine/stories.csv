@@ -1,0 +1,29 @@
+Epic,Story ID,Title,Description,Primary Outcome,Depends On
+Core Infrastructure,E-001,Define EventDefinition base contract,Create abstract EventDefinition with enforced interface (event_name, event_type, to_outbox_attributes),Clear extension point for event schemas,None
+Core Infrastructure,E-002,Enforce payload contract,Ensure payload must be built by engine and must return Hash,Prevent silent or malformed events,E-001
+Core Infrastructure,E-003,Introduce EventEmitter passthrough,Emit OutboxEvent strictly via definition.to_outbox_attributes,Dumb and stable emission boundary,E-001
+Core Infrastructure,E-004,Add metadata passthrough to emitter,Allow optional metadata hash to be included in outbox events,Context propagation without schema coupling,E-003
+Schema Definition,E-005,Add input declarations to EventDefinition,Support zero or more named inputs (e.g. input :cow),Explicit data sources for schemas,E-001
+Schema Definition,E-006,Validate provided inputs at emit time,Ensure required inputs are provided and no undeclared inputs are passed,Fail-fast schema correctness,E-005
+Schema Definition,E-007,Add required field declarations,Allow schema to declare required payload fields with extraction paths,Guaranteed payload completeness,E-005
+Schema Definition,E-008,Add optional field declarations,Allow optional payload fields with extraction paths,Flexible but safe payloads,E-007
+Schema Definition,E-009,Build payload from schema and inputs,Engine constructs payload by extracting values from inputs or arguments,Eliminate hand-built payloads,E-007
+Schema Definition,E-010,Support zero-input (argument-only) events,Allow events with no entity inputs (e.g. gums.bled),Enable observational/user-driven events,E-005
+Developer Ergonomics,E-011,Create developer-defined event classes,Allow developers to define events via subclasses of EventDefinition,Code-authored schemas,E-009
+Developer Ergonomics,E-012,Generate Event.* helper methods,Expose helpers like Event.cow_fed(cow:),Ergonomic event emission,E-011
+Schema Versioning,E-013,Introduce schema version concept,Add version metadata to schemas with default resolution,Backward compatibility foundation,E-009
+Schema Versioning,E-014,Enforce immutability of schema versions,Prevent modification of emitted versions,Safe event history,E-013
+Schema Versioning,E-015,Support explicit version override on emit,Allow Event.cow_fed(..., version: 1),Controlled replay and backfills,E-013
+User-Defined Events,E-016,Create DB tables for custom event authoring,Add engine-provided migrations for event definitions and versions,UI-driven schemas,E-009
+User-Defined Events,E-017,Support categorical/enum field constraints,Allow fields to define allowed values (e.g. severity levels),Validated user input,E-016
+User-Defined Events,E-018,Compile DB schemas into runtime schemas,Convert DB-defined schemas into in-memory EventSchema objects,Unified runtime model,E-016
+User-Defined Events,E-019,Expose API endpoint for user event emission,Allow SaaS users to emit events via API,External integrations,E-018
+Runtime & Scale,E-020,Introduce schema registry abstraction,Central in-memory registry keyed by tenant + event,Fast schema lookup,E-018
+Runtime & Scale,E-021,Add shared cache backing for schemas,Store compiled schemas in Redis or similar,No restarts / multi-server safety,E-020
+Runtime & Scale,E-022,Implement schema cache invalidation,Ensure schema updates propagate without downtime,Safe live updates,E-021
+Runtime & Scale,E-023,Add schema compilation background job,Asynchronously compile and activate new schema versions,Non-blocking updates,E-021
+Operations,E-024,Add schema checksum & integrity checks,Detect accidental mutation of immutable schemas,Production safety,E-014
+Operations,E-025,Provide CLI / admin tooling for schemas,Commands to generate, version, activate schemas,Operational ergonomics,E-016
+Observability,E-026,Add schema-level instrumentation,Track emits per schema/version,Debuggability and analytics,E-020
+Documentation,E-027,Write developer guide for defining events,Explain EventDefinition DSL and helpers,Adoption and correctness,E-011
+Documentation,E-028,Write SaaS user guide for custom events,Explain UI/API-driven event creation,End-user enablement,E-019

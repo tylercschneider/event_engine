@@ -10,6 +10,20 @@ module EventEngine
       @event_type = event_type
     end
 
+    class << self
+      def input(name)
+        name = name.to_sym
+        if inputs.include?(name)
+          raise ArgumentError, "duplicate input: #{name}"
+        end
+        inputs << name
+      end
+
+      def inputs
+        @inputs ||= []
+      end
+    end
+
     def payload
       value = build_payload
 
