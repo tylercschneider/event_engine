@@ -17,10 +17,13 @@ module EventEngine
         begin
           @transport.publish(event)
           event.mark_published!
-        rescue
+        rescue => e
           event.increment_attempts!
           if @max_attempts && event.attempts >= @max_attempts
             event.dead_letter!
+            Rails.logger.error(
+              "[EventEngine] Dead-lettered event: event_id=#{event.id}, event_type=#{event.event_type}, attempts=#{event.attempts}, error=#{e.message}"
+            )
           end
         end
       end
