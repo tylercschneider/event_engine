@@ -46,5 +46,24 @@ module EventEngine
       assert_nil event.reload.published_at
       transport.verify
     end
+
+    test "increments attempts when delivery fails" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        payload: { filler: "x" }
+      )
+
+      transport = Minitest::Mock.new
+      transport.expect :publish, nil do |_event|
+        raise StandardError, "boom"
+      end
+
+      assert_raises(StandardError) do
+        EventEngine::OutboxPublisher.new(transport: transport).call
+      end
+
+      assert_equal 1, event.reload.attempts
+    end
   end
 end

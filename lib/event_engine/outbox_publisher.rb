@@ -6,8 +6,13 @@ module EventEngine
 
     def call
       OutboxEvent.unpublished.ordered.find_each do |event|
-        @transport.publish(event)
-        event.mark_published!
+        begin
+          @transport.publish(event)
+          event.mark_published!
+        rescue
+          event.increment_attempts!
+          raise
+        end
       end
     end
   end

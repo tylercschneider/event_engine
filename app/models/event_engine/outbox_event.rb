@@ -10,6 +10,10 @@ module EventEngine
     scope :ordered, -> { order(:created_at) }
     scope :unpublished, -> { where(published_at: nil) }
 
+    def increment_attempts!
+      update!(attempts: (attempts || 0) + 1)
+    end
+
     def mark_published!
       update!(published_at: Time.current)
     end
