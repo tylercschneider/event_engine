@@ -20,6 +20,14 @@ module EventEngine
       value
     end
 
+    def to_outbox_attributes
+      {
+        event_name: event_name,
+        event_type: event_type,
+        payload: payload
+      }
+    end
+
     private
 
     def blank?(value)

@@ -40,5 +40,23 @@ module EventEngine
 
       assert_match "payload must be a Hash", error.message
     end
+
+    test "event definition exposes outbox attributes" do
+      definition = Class.new(EventDefinition) do
+        def build_payload
+          { order_id: 123 }
+        end
+      end.new(
+        event_name: "order.shipped",
+        event_type: "domain"
+      )
+
+      result = definition.to_outbox_attributes
+
+      assert_kind_of Hash, result
+      assert_equal "order.shipped", result[:event_name]
+      assert_equal "domain", result[:event_type]
+      assert_equal({ order_id: 123 }, result[:payload])
+    end
   end
 end

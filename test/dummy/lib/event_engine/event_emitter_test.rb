@@ -17,7 +17,7 @@ module EventEngine
       assert outbox_event.persisted?
       assert_equal "order.shipped", outbox_event.event_name
       assert_equal "domain", outbox_event.event_type
-      assert_equal({ random: "filler" }.stringify_keys, outbox_event.payload)
+      assert_equal({ "random" => "filler" }, outbox_event.payload)
     end
   end
 end
