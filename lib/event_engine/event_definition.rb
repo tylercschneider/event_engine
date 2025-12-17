@@ -22,6 +22,18 @@ module EventEngine
       def inputs
         @inputs ||= []
       end
+
+      def required(name)
+        name = name.to_sym
+        if required_fields.include?(name)
+          raise ArgumentError, "duplicate required field: #{name}"
+        end
+        required_fields << name
+      end
+
+      def required_fields
+        @required_fields ||= []
+      end
     end
 
     def payload
