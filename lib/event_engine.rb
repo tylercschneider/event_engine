@@ -4,6 +4,7 @@ require "event_engine/outbox_publisher"
 require "event_engine/transports/in_memory_transport"
 require "event_engine/configuration"
 require "event_engine/event_definition"
+require "event_engine/event_emitter"
 
 module EventEngine
   class << self
