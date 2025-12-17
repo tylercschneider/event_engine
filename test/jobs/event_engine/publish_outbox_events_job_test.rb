@@ -42,4 +42,21 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
 
     assert_match "EventEngine transport not configured", error.message
   end
+
+  test "job respects configured batch size" do
+    e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 1 })
+    e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 2 })
+    e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 3 })
+
+    transport = EventEngine::Transports::InMemoryTransport.new
+    EventEngine.configure do |c|
+      c.transport = transport
+      c.batch_size = 2
+    end
+
+    EventEngine::PublishOutboxEventsJob.perform_now
+
+    assert_equal [e1, e2], transport.events
+    assert_nil e3.reload.published_at
+  end
 end

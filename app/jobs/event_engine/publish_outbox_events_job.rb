@@ -3,10 +3,13 @@ module EventEngine
     queue_as :default
 
     def perform
-      transport = EventEngine.configuration.transport
-      raise "EventEngine transport not configured" unless transport
+      config = EventEngine.configuration
+      raise "EventEngine transport not configured" unless config&.transport
 
-      OutboxPublisher.new(transport: transport).call
+      OutboxPublisher.new(
+        transport: config.transport,
+        batch_size: config.batch_size
+      ).call
     end
   end
 end
