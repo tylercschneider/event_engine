@@ -8,6 +8,7 @@ module EventEngine
     validates :idempotency_key, uniqueness: true, allow_nil: true
 
     scope :ordered, -> { order(:created_at) }
+    scope :retryable, -> (max_attempts) { where("attempts < ?", max_attempts)}
     scope :unpublished, -> { where(published_at: nil) }
 
     def increment_attempts!

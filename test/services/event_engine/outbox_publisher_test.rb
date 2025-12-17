@@ -79,5 +79,32 @@ module EventEngine
       assert_equal [e1, e2], transport.events
       assert_nil e3.reload.published_at
     end
+
+    test "skips events that exceeded max attempts" do
+      skipped = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        payload: { x: 1 },
+        attempts: 5
+      )
+
+      published = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        payload: { x: 2 },
+        attempts: 0
+      )
+
+      transport = EventEngine::Transports::InMemoryTransport.new
+
+      EventEngine::OutboxPublisher.new(
+        transport: transport,
+        batch_size: 10,
+        max_attempts: 5
+      ).call
+
+      assert_equal [published], transport.events
+      assert_nil skipped.reload.published_at
+    end
   end
 end

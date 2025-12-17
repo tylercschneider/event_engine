@@ -1,12 +1,14 @@
 module EventEngine
   class OutboxPublisher
-    def initialize(transport:, batch_size: nil)
+    def initialize(transport:, batch_size: nil, max_attempts: nil)
       @transport = transport
       @batch_size = batch_size
+      @max_attempts = max_attempts
     end
 
     def call
       scope = OutboxEvent.unpublished.ordered
+      scope = scope.retryable(@max_attempts) if @max_attempts
       scope = scope.limit(@batch_size) if @batch_size
 
       scope.find_each do |event|
