@@ -65,5 +65,19 @@ module EventEngine
 
       assert_equal 1, event.reload.attempts
     end
+
+    test "publishes only up to the batch size" do
+      e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 1 })
+      e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 2 })
+      e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 3 })
+
+      transport = EventEngine::Transports::InMemoryTransport.new
+      publisher = EventEngine::OutboxPublisher.new(transport: transport, batch_size: 2)
+
+      publisher.call
+
+      assert_equal [e1, e2], transport.events
+      assert_nil e3.reload.published_at
+    end
   end
 end

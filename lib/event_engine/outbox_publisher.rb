@@ -1,11 +1,15 @@
 module EventEngine
   class OutboxPublisher
-    def initialize(transport:)
+    def initialize(transport:, batch_size: nil)
       @transport = transport
+      @batch_size = batch_size
     end
 
     def call
-      OutboxEvent.unpublished.ordered.find_each do |event|
+      scope = OutboxEvent.unpublished.ordered
+      scope = scope.limit(@batch_size) if @batch_size
+
+      scope.find_each do |event|
         begin
           @transport.publish(event)
           event.mark_published!
