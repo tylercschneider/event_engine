@@ -23,6 +23,18 @@ module EventEngine
         @inputs ||= []
       end
 
+      def optional(name)
+        name = name.to_sym
+        if optional_fields.include?(name)
+          raise ArgumentError, "duplicate optional field: #{name}"
+        end
+        optional_fields << name
+      end
+
+      def optional_fields
+        @optional_fields ||= []
+      end
+
       def required(name)
         name = name.to_sym
         if required_fields.include?(name)
