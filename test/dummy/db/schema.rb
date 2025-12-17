@@ -19,7 +19,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_17_155422) do
     t.json "payload", null: false
     t.datetime "published_at"
     t.string "idempotency_key"
-    t.integer "attempts"
+    t.integer "attempts", default: 0, null: false
     t.index ["idempotency_key"], name: "index_event_engine_outbox_events_on_idempotency_key", unique: true
   end
 
