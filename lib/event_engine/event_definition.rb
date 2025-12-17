@@ -22,7 +22,6 @@ module EventEngine
 
     private
 
-    
     def blank?(value)
       value.nil? || (value.respond_to?(:empty?) && value.empty?)
     end
