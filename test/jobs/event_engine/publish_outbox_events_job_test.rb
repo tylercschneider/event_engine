@@ -32,4 +32,14 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
     assert_equal [event], transport.events
     assert_not_nil event.reload.published_at
   end
+
+  test "raises a clear error when transport is not configured" do
+    EventEngine.configure { |c| c.transport = nil }
+
+    error = assert_raises(RuntimeError) do
+      EventEngine::PublishOutboxEventsJob.perform_now
+    end
+
+    assert_match "EventEngine transport not configured", error.message
+  end
 end
