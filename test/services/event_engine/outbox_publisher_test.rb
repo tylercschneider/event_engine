@@ -10,5 +10,21 @@ module EventEngine
 
       transport.verify
     end
+
+    test "publishes unpublished events and marks them published" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "order.created",
+        event_name: "order.created",
+        payload: {filler: "x"}
+      )
+
+      transport = Minitest::Mock.new
+      transport.expect :publish, true, [event]
+
+      EventEngine::OutboxPublisher.new(transport: transport).call
+
+      assert_not_nil event.reload.published_at
+      transport.verify
+    end
   end
 end
