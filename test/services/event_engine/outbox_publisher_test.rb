@@ -39,9 +39,7 @@ module EventEngine
         raise StandardError, "delivery failed"
       end
 
-      assert_raises(StandardError) do
-        EventEngine::OutboxPublisher.new(transport: transport).call
-      end
+      EventEngine::OutboxPublisher.new(transport: transport).call
 
       assert_nil event.reload.published_at
       transport.verify
@@ -59,9 +57,7 @@ module EventEngine
         raise StandardError, "boom"
       end
 
-      assert_raises(StandardError) do
-        EventEngine::OutboxPublisher.new(transport: transport).call
-      end
+      EventEngine::OutboxPublisher.new(transport: transport).call
 
       assert_equal 1, event.reload.attempts
     end
@@ -105,6 +101,29 @@ module EventEngine
 
       assert_equal [published], transport.events
       assert_nil skipped.reload.published_at
+    end
+
+    test "dead-letters event after exceeding max attempts" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        payload: { x: 1 },
+        attempts: 4
+      )
+
+      transport = Minitest::Mock.new
+      transport.expect :publish, nil do |_|
+        raise StandardError, "boom"
+      end
+
+      EventEngine::OutboxPublisher.new(
+        transport: transport,
+        max_attempts: 5
+      ).call
+
+      event.reload
+      assert event.dead_lettered?
+      assert_nil event.published_at
     end
   end
 end

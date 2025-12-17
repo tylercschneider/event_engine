@@ -7,7 +7,9 @@ module EventEngine
     end
 
     def call
-      scope = OutboxEvent.unpublished.ordered
+      scope = OutboxEvent.unpublished
+                        .active
+                        .ordered
       scope = scope.retryable(@max_attempts) if @max_attempts
       scope = scope.limit(@batch_size) if @batch_size
 
@@ -17,7 +19,9 @@ module EventEngine
           event.mark_published!
         rescue
           event.increment_attempts!
-          raise
+          if @max_attempts && event.attempts >= @max_attempts
+            event.dead_letter!
+          end
         end
       end
     end

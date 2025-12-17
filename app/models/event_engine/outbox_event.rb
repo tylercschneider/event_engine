@@ -7,9 +7,19 @@ module EventEngine
     validates :payload, presence: true
     validates :idempotency_key, uniqueness: true, allow_nil: true
 
+    scope :active, -> { where(dead_lettered_at: nil) }
+    scope :dead_lettered, -> { where.not(dead_lettered_at: nil) }
     scope :ordered, -> { order(:created_at) }
-    scope :retryable, -> (max_attempts) { where("attempts < ?", max_attempts)}
+    scope :retryable, -> (max_attempts) { where("attempts < ?", max_attempts) }
     scope :unpublished, -> { where(published_at: nil) }
+
+    def dead_letter!
+      update!(dead_lettered_at: Time.current)
+    end
+
+    def dead_lettered?
+      dead_lettered_at.present?
+    end
 
     def increment_attempts!
       update!(attempts: (attempts || 0) + 1)
