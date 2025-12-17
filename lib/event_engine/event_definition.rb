@@ -12,39 +12,40 @@ module EventEngine
 
     class << self
       def input(name)
-        name = name.to_sym
-        if inputs.include?(name)
-          raise ArgumentError, "duplicate input: #{name}"
-        end
-        inputs << name
+        add_to_schema_list(:inputs, name, "input")
+      end
+
+      def required(name)
+        add_to_schema_list(:required_fields, name, "required field")
+      end
+
+      def optional(name)
+        add_to_schema_list(:optional_fields, name, "optional field")
       end
 
       def inputs
         @inputs ||= []
       end
 
-      def optional(name)
-        name = name.to_sym
-        if optional_fields.include?(name)
-          raise ArgumentError, "duplicate optional field: #{name}"
-        end
-        optional_fields << name
+      def required_fields
+        @required_fields ||= []
       end
 
       def optional_fields
         @optional_fields ||= []
       end
 
-      def required(name)
-        name = name.to_sym
-        if required_fields.include?(name)
-          raise ArgumentError, "duplicate required field: #{name}"
-        end
-        required_fields << name
-      end
+      private
 
-      def required_fields
-        @required_fields ||= []
+      def add_to_schema_list(list_name, name, label)
+        name = name.to_sym
+        list = send(list_name)
+
+        if list.include?(name)
+          raise ArgumentError, "duplicate #{label}: #{name}"
+        end
+
+        list << name
       end
     end
 
