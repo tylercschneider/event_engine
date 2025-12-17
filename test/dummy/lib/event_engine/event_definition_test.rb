@@ -27,5 +27,18 @@ module EventEngine
 
       assert_match "event_type", error.message
     end
+
+    test "raises error when payload is not a hash" do
+      definition = EventDefinition.new(
+        event_name: "order.shipped",
+        event_type: "domain"
+      )
+
+      error = assert_raises(ArgumentError) do
+        definition.payload
+      end
+
+      assert_match "payload must be a Hash", error.message
+    end
   end
 end

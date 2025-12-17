@@ -10,10 +10,25 @@ module EventEngine
       @event_type = event_type
     end
 
+    def payload
+      value = build_payload
+
+      unless value.is_a?(Hash)
+        raise ArgumentError, "payload must be a Hash"
+      end
+
+      value
+    end
+
     private
 
+    
     def blank?(value)
       value.nil? || (value.respond_to?(:empty?) && value.empty?)
+    end
+    
+    def build_payload
+      nil
     end
   end
 end
