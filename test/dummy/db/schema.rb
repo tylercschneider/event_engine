@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_16_213819) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_17_155422) do
   create_table "event_engine_outbox_events", force: :cascade do |t|
     t.string "event_name"
     t.datetime "created_at", null: false
@@ -19,6 +19,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_16_213819) do
     t.json "payload", null: false
     t.datetime "published_at"
     t.string "idempotency_key"
+    t.integer "attempts"
     t.index ["idempotency_key"], name: "index_event_engine_outbox_events_on_idempotency_key", unique: true
   end
 
