@@ -6,55 +6,35 @@ module EventEngine
       end
 
       module ClassMethods
-        def required(name, from:)
-          add_field(name, from: from, required: true)
-        end
-
-        def optional(name, from:)
-          add_field(name, from: from, required: false)
-        end
-
-        def fields
-          @fields ||= {}
-        end
-
-        private
-
-        def add_field(name, from:, required:)
-          name = name.to_sym
-
-          if fields.key?(name)
-            raise ArgumentError, "duplicate field: #{name}"
-          end
-
-          normalized_from = normalize_from(from)
-
-          fields[name] = {
-            from: normalized_from,
-            required: required
+        def required_payload(name, from: nil, attr: nil)
+          payload_fields << {
+            name: name.to_sym,
+            required: true,
+            from: resolve_from(from, attr),
+            attr: resolve_attr(from, attr)
           }
         end
 
-        def normalize_from(from)
-          case from
-          when Array
-            from.map(&:to_sym)
-          when Symbol
-            infer_from_symbol(from)
-          else
-            raise ArgumentError, "invalid from: #{from.inspect}"
-          end
+        def payload_fields
+          @payload_fields ||= []
         end
 
-        def infer_from_symbol(attr)
-          if inputs.empty?
-            [:arguments, attr]
-          elsif inputs.length == 1
-            [inputs.first, attr]
-          else
-            raise ArgumentError,
-                  "ambiguous extraction path for :#{attr}; specify input explicitly"
-          end
+        def resolve_from(from, attr)
+          return from if from && attr
+          return sole_input if from && !attr
+          raise ArgumentError, "from: is required for payload field"
+        end
+
+        def resolve_attr(from, attr)
+          return attr if attr
+          return from if from && sole_input
+          raise ArgumentError, "attr cannot be resolved"
+        end
+
+        def sole_input
+          all_inputs = inputs.keys
+          raise ArgumentError, "ambiguous input for payload field" unless all_inputs.size == 1
+          all_inputs.first
         end
       end
     end

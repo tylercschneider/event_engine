@@ -13,6 +13,7 @@ module EventEngine
       :event_type,
       :required_inputs,
       :optional_inputs,
+      :payload_fields,
       keyword_init: true
     )
     end
@@ -37,7 +38,8 @@ module EventEngine
           event_name: @event_name,
           event_type: @event_type,
           required_inputs: required,
-          optional_inputs: optional
+          optional_inputs: optional,
+          payload_fields: payload_fields
         )
       end
     end
