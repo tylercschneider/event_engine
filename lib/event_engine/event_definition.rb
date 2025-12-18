@@ -11,6 +11,8 @@ module EventEngine
     class Schema < Struct.new(
       :event_name, 
       :event_type,
+      :required_inputs,
+      :optional_inputs,
       keyword_init: true
     )
     end
@@ -28,9 +30,14 @@ module EventEngine
         raise ArgumentError, "event_name is required" unless @event_name
         raise ArgumentError, "event_type is required" unless @event_type
 
+        required = inputs.select { |_, v| v== :required }.keys
+        optional = inputs.select { |_, v| v== :optional }.keys
+
         Schema.new(
           event_name: @event_name,
-          event_type: @event_type
+          event_type: @event_type,
+          required_inputs: required,
+          optional_inputs: optional
         )
       end
     end

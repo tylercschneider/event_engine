@@ -2,32 +2,33 @@ require "test_helper"
 
 module EventEngine
   class EventDefinitionInputsTest < ActiveSupport::TestCase
-    test "allows declaring named inputs" do
-      definition_class = Class.new(EventDefinition) do
-        input :cow
-        input :farmer
-      end
+    class CowFed < EventDefinition
+      event_name :cow_fed
+      event_type :domain
 
-      inputs = definition_class.inputs
-
-      assert_equal [:cow, :farmer], inputs
+      input :cow
+      optional_input :farmer
     end
 
-    test "allows zero inputs" do
-      definition_class = Class.new(EventDefinition)
+    test "compiles inputs into schema" do
+      schema = CowFed.schema
 
-      assert_equal [], definition_class.inputs
+      assert_equal [:cow], schema.required_inputs
+      assert_equal [:farmer], schema.optional_inputs
     end
 
-    test "does not allow duplicate inputs" do
+    test "raises error on duplicate input" do
       error = assert_raises(ArgumentError) do
         Class.new(EventDefinition) do
+          event_name :dup_test
+          event_type :domain
+
           input :cow
           input :cow
         end
       end
 
-      assert_match "duplicate input", error.message
+      assert_match "duplicate input: cow", error.message
     end
   end
 end

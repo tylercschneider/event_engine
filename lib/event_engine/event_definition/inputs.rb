@@ -8,17 +8,22 @@ module EventEngine
       module ClassMethods
         def input(name)
           name = name.to_sym
-
-          if inputs.include?(name)
+          if inputs.key?(name)
             raise ArgumentError, "duplicate input: #{name}"
           end
+          inputs[name] = :required
+        end
 
-          inputs << name
-
+        def optional_input(name)
+          name = name.to_sym
+          if inputs.key?(name)
+            raise ArgumentError, "duplicate input: #{name}"
+          end
+          inputs[name] = :optional
         end
 
         def inputs
-          @inputs ||= []
+          @inputs ||= {}
         end
       end
     end
