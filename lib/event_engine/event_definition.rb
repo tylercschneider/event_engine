@@ -15,27 +15,36 @@ module EventEngine
         add_to_schema_list(:inputs, name, "input")
       end
 
-      def required(name)
-        add_to_schema_list(:required_fields, name, "required field")
-      end
-
-      def optional(name)
-        add_to_schema_list(:optional_fields, name, "optional field")
-      end
-
       def inputs
         @inputs ||= []
       end
 
-      def required_fields
-        @required_fields ||= []
+      def required(name, from:)
+        add_field(name, from: from, required: true)
       end
 
-      def optional_fields
-        @optional_fields ||= []
+      def optional(name, from:)
+        add_field(name, from: from, required: false)
+      end
+
+      def fields
+        @fields ||= {}
       end
 
       private
+
+      def add_field(name, from:, required:)
+        name = name.to_sym
+
+        if fields.key?(name)
+          raise ArgumentError, "duplicate field: #{name}"
+        end
+
+        fields[name] = {
+          from: Array(from),
+          required: required
+        }
+      end
 
       def add_to_schema_list(list_name, name, label)
         name = name.to_sym
