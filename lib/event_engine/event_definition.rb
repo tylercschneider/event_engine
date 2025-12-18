@@ -40,10 +40,34 @@ module EventEngine
           raise ArgumentError, "duplicate field: #{name}"
         end
 
+        normalized_from = normalize_from(from)
+
         fields[name] = {
-          from: Array(from),
+          from: normalized_from,
           required: required
         }
+      end
+
+      def normalize_from(from)
+        case from
+        when Array
+          from.map(&:to_sym)
+        when Symbol
+          infer_from_symbol(from)
+        else
+          raise ArgumentError, "invalid from: #{from.inspect}"
+        end
+      end
+
+      def infer_from_symbol(attr)
+        if inputs.empty?
+          [:arguments, attr]
+        elsif inputs.length == 1
+          [inputs.first, attr]
+        else
+          raise ArgumentError,
+                "ambiguous extraction path for :#{attr}; specify input explicitly"
+        end
       end
 
       def add_to_schema_list(list_name, name, label)
