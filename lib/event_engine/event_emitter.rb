@@ -1,13 +1,13 @@
 module EventEngine
   class EventEmitter
-    def self.emit(definition:)
-      attributes = definition.to_outbox_attributes
+    def self.emit()
+      # schema = EventRegistry.current(:started_car)
+      # attrs  = EventBuilder.build(
+      #   schema: schema,
+      #   data: { car: car, driver: driver }
+      # )
 
-      unless attributes.is_a?(Hash)
-        raise ArgumentError, "to_outbox_attributes must return a Hash"
-      end
-
-      OutboxEvent.create!(attributes)
+      # OutboxWriter.write()
     end
   end
 end
