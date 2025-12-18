@@ -1,6 +1,6 @@
 module EventEngine
   class EventDefinition
-    module Fields
+    module Payloads
       def self.included(base)
         base.extend ClassMethods
       end
