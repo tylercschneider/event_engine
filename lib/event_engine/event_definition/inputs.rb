@@ -7,7 +7,14 @@ module EventEngine
 
       module ClassMethods
         def input(name)
-          add_to_schema_list(:inputs, name, "input")
+          name = name.to_sym
+
+          if inputs.include?(name)
+            raise ArgumentError, "duplicate input: #{name}"
+          end
+
+          inputs << name
+
         end
 
         def inputs
