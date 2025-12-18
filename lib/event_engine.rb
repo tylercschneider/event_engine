@@ -15,4 +15,15 @@ module EventEngine
     self.configuration ||= Configuration.new
     yield(configuration)
   end
+
+  # def self.install_helpers(registry:)
+  #   registry.current_schemas.each do |event_name, entry|
+  #     schema = entry[:schema]
+
+  #     define_singleton_method(event_name) do |**kwargs|
+  #       attrs = EventBuilder.build(schema: schema, data: kwargs)
+  #       Event.emit(attrs)
+  #     end
+  #   end
+  # end
 end
