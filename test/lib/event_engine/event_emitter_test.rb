@@ -8,7 +8,7 @@ module EventEngine
           {
             event_name: "order.shipped",
             event_type: "domain",
-            payload: { order_id: 123 }
+            payload: { random: "filler" }
           }
         end
       end.new
