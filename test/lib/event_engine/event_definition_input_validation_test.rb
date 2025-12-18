@@ -5,10 +5,7 @@ module EventEngine
     test "raises error when required input is missing" do
       definition = Class.new(EventDefinition) do
         input :cow
-      end.new(
-        event_name: "cow.fed",
-        event_type: "domain"
-      )
+      end.new
 
       error = assert_raises(ArgumentError) do
         definition.validate_inputs!({})
@@ -20,10 +17,7 @@ module EventEngine
     test "raises error when undeclared input is provided" do
       definition = Class.new(EventDefinition) do
         input :cow
-      end.new(
-        event_name: "cow.fed",
-        event_type: "domain"
-      )
+      end.new
 
       error = assert_raises(ArgumentError) do
         definition.validate_inputs!(cow: Object.new, farmer: Object.new)
@@ -33,10 +27,7 @@ module EventEngine
     end
 
     test "allows zero-input events" do
-      definition = Class.new(EventDefinition).new(
-        event_name: "gums.bled",
-        event_type: "health"
-      )
+      definition = Class.new(EventDefinition).new
 
       # Should not raise
       definition.validate_inputs!(severity: "light")
