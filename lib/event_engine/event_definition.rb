@@ -8,8 +8,33 @@ module EventEngine
     include Fields
     include Validation
 
-    # def self.schema
-    # end
+    class Schema < Struct.new(
+      :event_name, 
+      :event_type,
+      keyword_init: true
+    )
+    end
+
+    class << self
+      def event_name(value)
+        @event_name = value
+      end
+
+      def event_type(value)
+        @event_type = value
+      end
+
+      def schema
+        raise ArgumentError, "event_name is required" unless @event_name
+        raise ArgumentError, "event_type is required" unless @event_type
+
+        Schema.new(
+          event_name: @event_name,
+          event_type: @event_type
+        )
+      end
+    end
+
   end
 end
 
