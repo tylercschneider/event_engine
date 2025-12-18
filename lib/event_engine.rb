@@ -5,7 +5,6 @@ require "event_engine/transports/in_memory_transport"
 require "event_engine/configuration"
 require "event_engine/event_definition"
 require "event_engine/event_emitter"
-require "event_engine/event_envelope"
 
 module EventEngine
   class << self
