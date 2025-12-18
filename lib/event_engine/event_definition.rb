@@ -1,8 +1,10 @@
 require "event_engine/event_definition/inputs"
+require "event_engine/event_definition/fields"
 
 module EventEngine
   class EventDefinition
     include Inputs
+    include Fields
 
     attr_reader :event_name, :event_type
 
@@ -28,70 +30,6 @@ module EventEngine
         unless extra.empty?
           raise ArgumentError, "undeclared input: #{extra.join(', ')}"
         end
-      end
-    end
-
-    class << self
-      def required(name, from:)
-        add_field(name, from: from, required: true)
-      end
-
-      def optional(name, from:)
-        add_field(name, from: from, required: false)
-      end
-
-      def fields
-        @fields ||= {}
-      end
-
-      private
-
-      def add_field(name, from:, required:)
-        name = name.to_sym
-
-        if fields.key?(name)
-          raise ArgumentError, "duplicate field: #{name}"
-        end
-
-        normalized_from = normalize_from(from)
-
-        fields[name] = {
-          from: normalized_from,
-          required: required
-        }
-      end
-
-      def normalize_from(from)
-        case from
-        when Array
-          from.map(&:to_sym)
-        when Symbol
-          infer_from_symbol(from)
-        else
-          raise ArgumentError, "invalid from: #{from.inspect}"
-        end
-      end
-
-      def infer_from_symbol(attr)
-        if inputs.empty?
-          [:arguments, attr]
-        elsif inputs.length == 1
-          [inputs.first, attr]
-        else
-          raise ArgumentError,
-                "ambiguous extraction path for :#{attr}; specify input explicitly"
-        end
-      end
-
-      def add_to_schema_list(list_name, name, label)
-        name = name.to_sym
-        list = send(list_name)
-
-        if list.include?(name)
-          raise ArgumentError, "duplicate #{label}: #{name}"
-        end
-
-        list << name
       end
     end
 
