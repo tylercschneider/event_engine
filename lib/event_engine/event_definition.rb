@@ -10,6 +10,23 @@ module EventEngine
       @event_type = event_type
     end
 
+    def validate_inputs!(inputs)
+      declared = self.class.inputs
+      provided = inputs.keys.map(&:to_sym)
+
+      if declared.any?
+        missing = declared - provided
+        unless missing.empty?
+          raise ArgumentError, "missing input: #{missing.join(', ')}"
+        end
+
+        extra = provided - declared
+        unless extra.empty?
+          raise ArgumentError, "undeclared input: #{extra.join(', ')}"
+        end
+      end
+    end
+
     class << self
       def input(name)
         add_to_schema_list(:inputs, name, "input")
