@@ -6,6 +6,15 @@ module EventEngine
       end
 
       module ClassMethods
+        def optional_payload(name, from: nil, attr: nil)
+          payload_fields << {
+            name: name.to_sym,
+            required: false,
+            from: resolve_from(from, attr),
+            attr: resolve_attr(from, attr)
+          }
+        end
+
         def required_payload(name, from: nil, attr: nil)
           payload_fields << {
             name: name.to_sym,
