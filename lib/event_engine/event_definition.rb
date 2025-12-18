@@ -1,5 +1,9 @@
+require "event_engine/event_definition/inputs"
+
 module EventEngine
   class EventDefinition
+    include Inputs
+
     attr_reader :event_name, :event_type
 
     def initialize(event_name:, event_type:)
@@ -28,14 +32,6 @@ module EventEngine
     end
 
     class << self
-      def input(name)
-        add_to_schema_list(:inputs, name, "input")
-      end
-
-      def inputs
-        @inputs ||= []
-      end
-
       def required(name, from:)
         add_field(name, from: from, required: true)
       end
