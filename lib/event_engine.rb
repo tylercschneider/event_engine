@@ -6,6 +6,7 @@ require "event_engine/configuration"
 require "event_engine/event_definition"
 require "event_engine/event_emitter"
 require "event_engine/event_registry"
+require "event_engine/event_builder"
 
 module EventEngine
   class << self
