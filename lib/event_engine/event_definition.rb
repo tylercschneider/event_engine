@@ -30,10 +30,8 @@ module EventEngine
       end
 
       def schema
-        raise ArgumentError, "event_name is required" unless @event_name
-        raise ArgumentError, "event_type is required" unless @event_type
-
-        validate_payload_fields!
+        errors = schema_errors
+        raise ArgumentError, errors.join(", ") if errors.any?
 
         required = inputs.select { |_, v| v== :required }.keys
         optional = inputs.select { |_, v| v== :optional }.keys
@@ -47,24 +45,48 @@ module EventEngine
         )
       end
 
+      def schema_errors
+        errors = []
+        validate_identity(errors)
+        validate_payload_fields(errors)
+        errors
+      end
+
+      def valid_schema?
+        schema_errors.empty?
+      end
+
       private
 
-      def validate_payload_fields!
+      def validate_identity(errors)
+        errors << "event_name is required" unless @event_name
+        errors << "event_type is required" unless @event_type
+      end
+
+      def validate_payload_fields(errors)
         seen = {}
 
         payload_fields.each do |field|
           name = field[:name]
 
           if seen[name]
-            raise ArgumentError, "duplicate payload field: #{name}"
+            errors << "duplicate payload field: #{name}"
           end
 
           if RESERVED_PAYLOAD_FIELDS.include?(name)
-            raise ArgumentError, "payload field uses reserved name: #{name}"
+            errors << "payload field uses reserved name: #{name}"
+          end
+
+          if field[:from].nil?
+            errors << "payload field #{name} must have a from:"
           end
 
           unless inputs.key?(field[:from])
-            raise ArgumentError, "payload field #{name} references unknown input: #{field[:from]}"
+            errors << "payload field #{name} references unknown input: #{field[:from]}"
+          end
+
+           if field[:attr].nil?
+            errors << "payload field #{name} must have an attr:"
           end
 
           seen[name] = true

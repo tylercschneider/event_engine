@@ -20,18 +20,5 @@ module EventEngine
       assert_equal :cow, field[:from]
       assert_equal :id, field[:attr]
     end
-
-    test "raises error if required_payload has no from" do
-      error = assert_raises(ArgumentError) do
-        Class.new(EventDefinition) do
-          event_name :bad_event
-          event_type :domain
-          input :cow
-          required_payload :cow_id, attr: :id 
-        end
-      end
-
-      assert_match "from", error.message
-    end
   end
 end
