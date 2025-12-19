@@ -25,9 +25,16 @@ module EventEngine
             event_type: #{event_type.inspect},
             required_inputs: #{required_inputs.inspect},
             optional_inputs: #{optional_inputs.inspect},
-            payload_fields: #{payload_fields.inspect}
+            payload_fields: [#{payload_fields.map { |h| ruby_hash(h) }.join(", ")}]
           )
         RUBY
+      end
+
+      private
+
+      def ruby_hash(hash)
+        inner = hash.map { |k, v| "#{k}: #{v.inspect}" }.join(", ")
+        "{#{inner}}"
       end
     end
 
