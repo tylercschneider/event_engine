@@ -21,7 +21,7 @@ module EventEngine
     end
 
     test "raises when event_name is not registered" do
-      error = assert_raises(KeyError) { EventRegistry.current(:missing_event) }
+      error = assert_raises(EventRegistry::UnknownEventError) { EventRegistry.current(:missing_event) }
       assert_match "missing_event", error.message
     end
   end
