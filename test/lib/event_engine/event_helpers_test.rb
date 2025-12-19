@@ -1,4 +1,5 @@
 require "test_helper"
+require "ostruct"
 
 module EventEngine
   class EventHelpersTest < ActiveSupport::TestCase
@@ -12,7 +13,7 @@ module EventEngine
 
     setup do
       EventRegistry.reset!
-      EventRegistry.register(CowFed)
+      EventRegistry.register(CowFed.schema)
       EventEngine.install_helpers(registry: EventRegistry)
     end
 

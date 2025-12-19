@@ -11,7 +11,7 @@ module EventEngine
 
       def register(event_definition_class)
         raise RegistryFrozenError, "EventRegistry is already loaded" if loaded?
-        schema = event_definition_class.schema
+        schema = event_definition_class
         schemas[schema.event_name.to_sym] = schema
       end
 
@@ -27,10 +27,17 @@ module EventEngine
       def load!(definitions: nil)
         raise RegistryFrozenError, "EventRegistry already loaded" if loaded?
 
-        discover!(definitions: definitions)
+        if block_given?
+          raise ArgumentError, "cannot pass definitions and a block" if definitions
+          yield self
+        else
+          discover!(definitions: definitions)
+        end
+
         @loaded = true
         self
       end
+
 
       def loaded?
         @loaded
@@ -47,7 +54,7 @@ module EventEngine
             EventEngine::EventDefinition.descendants
           end
 
-        defs.each { |klass| register(klass) }
+        defs.each { |klass| register(klass.schema) }
         self
       end
 

@@ -14,7 +14,7 @@ module EventEngine
 
     setup do
       EventRegistry.reset!
-      EventRegistry.register(CowFed)
+      EventRegistry.register(CowFed.schema)
     end
 
     test "emits an OutboxEvent via registry and builder" do

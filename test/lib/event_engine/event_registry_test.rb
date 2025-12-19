@@ -12,7 +12,7 @@ module EventEngine
     end
 
     test "loads event definitions and returns schema by event_name" do
-      EventRegistry.register(CowFed)
+      EventRegistry.register(CowFed.schema)
 
       schema = EventRegistry.current(:cow_fed)
 
