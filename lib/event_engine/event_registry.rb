@@ -34,6 +34,10 @@ module EventEngine
           discover!(definitions: definitions)
         end
 
+        # Freeze schemas and registry storage
+        schemas.each_value(&:freeze)
+        schemas.freeze
+
         @loaded = true
         self
       end
