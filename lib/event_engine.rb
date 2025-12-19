@@ -8,6 +8,7 @@ require "event_engine/event_emitter"
 require "event_engine/event_registry"
 require "event_engine/event_builder"
 require "event_engine/outbox_writer"
+require "event_engine/schema_snapshot"
 
 module EventEngine
   class << self

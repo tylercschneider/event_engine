@@ -33,7 +33,7 @@ module EventEngine
       end
 
       def loaded?
-        @loaded == true
+        @loaded
       end
 
       # Deterministic discovery
