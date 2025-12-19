@@ -4,9 +4,11 @@ module EventEngine
       def write!(path)
         raise "EventRegistry must be loaded" unless EventEngine::EventRegistry.loaded?
 
-        schemas = EventEngine::EventRegistry.send(:schemas)
-                                            .values
-                                            .sort_by { |s| s.event_name.to_s }
+        schemas =
+          EventEngine::EventRegistry
+            .schemas_by_event
+            .flat_map { |_event_name, versions| versions.values }
+            .sort_by { |schema| [schema.event_name.to_s, schema.event_version || 1] }
 
         File.open(path, "w") do |f|
           f.puts "EventEngine::EventRegistry.load! do |registry|"

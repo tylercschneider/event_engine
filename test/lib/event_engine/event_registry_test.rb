@@ -14,7 +14,7 @@ module EventEngine
     test "loads event definitions and returns schema by event_name" do
       EventRegistry.register(CowFed.schema)
 
-      schema = EventRegistry.current(:cow_fed)
+      schema = EventRegistry.current_schema(:cow_fed)
 
       assert_equal :cow_fed, schema.event_name
       assert_equal :domain, schema.event_type

@@ -4,6 +4,7 @@ class SchemaToRubyTest < ActiveSupport::TestCase
   test "schema emits deterministic ruby constructor" do
     schema = EventEngine::EventDefinition::Schema.new(
       event_name: "cow.fed",
+      event_version: 1,
       event_type: "domain",
       required_inputs: [:cow],
       optional_inputs: [:barn],
@@ -17,6 +18,7 @@ class SchemaToRubyTest < ActiveSupport::TestCase
     expected = <<~RUBY.strip
       EventEngine::EventDefinition::Schema.new(
         event_name: "cow.fed",
+        event_version: 1,
         event_type: "domain",
         required_inputs: [:cow],
         optional_inputs: [:barn],

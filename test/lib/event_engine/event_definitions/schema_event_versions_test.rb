@@ -1,0 +1,37 @@
+require "test_helper"
+
+class SchemaEventVersionTest < ActiveSupport::TestCase
+  setup do
+    EventEngine::EventRegistry.reset!
+  end
+
+  test "schema allows event_version to be nil at construction" do
+    schema = EventEngine::EventDefinition::Schema.new(
+      event_name: :cow_fed,
+      event_type: :domain,
+      required_inputs: [],
+      optional_inputs: [],
+      payload_fields: []
+    )
+
+    assert_nil schema.event_version
+  end
+
+  test "registry assigns default event_version when registering schema" do
+    schema = EventEngine::EventDefinition::Schema.new(
+      event_name: :cow_fed,
+      event_type: :domain,
+      required_inputs: [],
+      optional_inputs: [],
+      payload_fields: []
+    )
+
+    EventEngine::EventRegistry.load! do |registry|
+      registry.register(schema)
+    end
+
+    loaded = EventEngine::EventRegistry.current_schema(:cow_fed)
+
+    assert_equal 1, loaded.event_version
+  end
+end

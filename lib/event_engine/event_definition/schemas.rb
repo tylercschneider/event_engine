@@ -6,7 +6,8 @@ module EventEngine
       end
 
       class Schema < Struct.new(
-        :event_name, 
+        :event_name,
+        :event_version,
         :event_type,
         :required_inputs,
         :optional_inputs,
@@ -17,6 +18,7 @@ module EventEngine
           <<~RUBY.strip
             EventEngine::EventDefinition::Schema.new(
               event_name: #{event_name.inspect},
+              event_version: #{event_version.inspect},
               event_type: #{event_type.inspect},
               required_inputs: #{required_inputs.inspect},
               optional_inputs: #{optional_inputs.inspect},
