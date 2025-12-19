@@ -1,13 +1,13 @@
 module EventEngine
   class EventEmitter
-    def self.emit()
-      # schema = EventRegistry.current(:started_car)
+    def self.emit(event_name:, data:)
+      # schema = EventRegistry.current(event_name)
       # attrs  = EventBuilder.build(
       #   schema: schema,
-      #   data: { car: car, driver: driver }
+      #   data: data
       # )
 
-      # OutboxWriter.write()
+      # OutboxWriter.write(attrs)
     end
   end
 end

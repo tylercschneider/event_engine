@@ -7,6 +7,7 @@ require "event_engine/event_definition"
 require "event_engine/event_emitter"
 require "event_engine/event_registry"
 require "event_engine/event_builder"
+require "event_engine/outbox_writer"
 
 module EventEngine
   class << self
