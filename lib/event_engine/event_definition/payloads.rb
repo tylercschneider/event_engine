@@ -10,8 +10,8 @@ module EventEngine
           payload_fields << {
             name: name.to_sym,
             required: false,
-            from: resolve_from(from, attr),
-            attr: resolve_attr(from, attr)
+            from: resolve_from(name, from),
+            attr: resolve_attr(name, attr)
           }
         end
 
@@ -19,8 +19,8 @@ module EventEngine
           payload_fields << {
             name: name.to_sym,
             required: true,
-            from: resolve_from(from, attr),
-            attr: resolve_attr(from, attr)
+            from: resolve_from(name, from),
+            attr: resolve_attr(name, attr)
           }
         end
 
@@ -28,22 +28,14 @@ module EventEngine
           @payload_fields ||= []
         end
 
-        def resolve_from(from, attr)
-          return from if from && attr
-          return sole_input if from && !attr
-          raise ArgumentError, "from: is required for payload field"
+        def resolve_from(name, from)
+          return from if from
+          raise ArgumentError, "from: is required for payload #{name}"
         end
 
-        def resolve_attr(from, attr)
+        def resolve_attr(name, attr)
           return attr if attr
-          return from if from && sole_input
-          raise ArgumentError, "attr cannot be resolved"
-        end
-
-        def sole_input
-          all_inputs = inputs.keys
-          raise ArgumentError, "ambiguous input for payload field" unless all_inputs.size == 1
-          all_inputs.first
+          raise ArgumentError, "attr: is required for payload #{name}"
         end
       end
     end

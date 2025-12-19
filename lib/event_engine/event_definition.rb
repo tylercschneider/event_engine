@@ -4,6 +4,8 @@ require "event_engine/event_definition/validation"
 
 module EventEngine
   class EventDefinition
+    RESERVED_PAYLOAD_FIELDS = %i[event_name event_type].freeze
+
     include Inputs
     include Payloads
     include Validation
@@ -31,6 +33,8 @@ module EventEngine
         raise ArgumentError, "event_name is required" unless @event_name
         raise ArgumentError, "event_type is required" unless @event_type
 
+        validate_payload_fields!
+
         required = inputs.select { |_, v| v== :required }.keys
         optional = inputs.select { |_, v| v== :optional }.keys
 
@@ -42,8 +46,31 @@ module EventEngine
           payload_fields: payload_fields
         )
       end
-    end
 
+      private
+
+      def validate_payload_fields!
+        seen = {}
+
+        payload_fields.each do |field|
+          name = field[:name]
+
+          if seen[name]
+            raise ArgumentError, "duplicate payload field: #{name}"
+          end
+
+          if RESERVED_PAYLOAD_FIELDS.include?(name)
+            raise ArgumentError, "payload field uses reserved name: #{name}"
+          end
+
+          unless inputs.key?(field[:from])
+            raise ArgumentError, "payload field #{name} references unknown input: #{field[:from]}"
+          end
+
+          seen[name] = true
+        end
+      end
+    end
   end
 end
 

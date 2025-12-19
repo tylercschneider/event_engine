@@ -8,7 +8,7 @@ module EventEngine
 
       input :cow
 
-      required_payload :cow_id, from: :id
+      required_payload :cow_id, from: :cow, attr: :id
     end
 
     test "compiles required payload field into schema" do
@@ -27,7 +27,7 @@ module EventEngine
           event_name :bad_event
           event_type :domain
           input :cow
-          required_payload :cow_id
+          required_payload :cow_id, attr: :id 
         end
       end
 
