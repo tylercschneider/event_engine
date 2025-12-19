@@ -19,14 +19,13 @@ module EventEngine
     yield(configuration)
   end
 
-  # def self.install_helpers(registry:)
-  #   registry.current_schemas.each do |event_name, entry|
-  #     schema = entry[:schema]
+  def self.install_helpers(registry:)
+    registry_event_names = registry.instance_variable_get(:@schemas).keys
 
-  #     define_singleton_method(event_name) do |**kwargs|
-  #       attrs = EventBuilder.build(schema: schema, data: kwargs)
-  #       Event.emit(attrs)
-  #     end
-  #   end
-  # end
+    registry_event_names.each do |event_name|
+      define_singleton_method(event_name) do |**data|
+        EventEmitter.emit(event_name: event_name, data: data)
+      end
+    end
+  end
 end
