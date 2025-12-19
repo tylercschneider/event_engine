@@ -42,7 +42,6 @@ module EventEngine
         self
       end
 
-
       def loaded?
         @loaded
       end
