@@ -1,13 +1,16 @@
 module EventEngine
   class EventRegistry
     class UnknownEventError < StandardError; end
+    class RegistryFrozenError < StandardError; end
 
     class << self
       def reset!
         @schemas = {}
+        @loaded = false
       end
 
       def register(event_definition_class)
+        raise RegistryFrozenError, "EventRegistry is already loaded" if loaded?
         schema = event_definition_class.schema
         schemas[schema.event_name.to_sym] = schema
       end
@@ -18,6 +21,19 @@ module EventEngine
 
       def current_schema(event_name)
         current(event_name)
+      end
+
+      # Explicit boot-time load
+      def load!(definitions: nil)
+        raise RegistryFrozenError, "EventRegistry already loaded" if loaded?
+
+        discover!(definitions: definitions)
+        @loaded = true
+        self
+      end
+
+      def loaded?
+        @loaded == true
       end
 
       # Deterministic discovery
