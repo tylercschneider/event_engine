@@ -18,6 +18,17 @@ module EventEngine
       :payload_fields,
       keyword_init: true
     )
+      def to_ruby
+        <<~RUBY.strip
+          EventEngine::EventDefinition::Schema.new(
+            event_name: #{event_name.inspect},
+            event_type: #{event_type.inspect},
+            required_inputs: #{required_inputs.inspect},
+            optional_inputs: #{optional_inputs.inspect},
+            payload_fields: #{payload_fields.inspect}
+          )
+        RUBY
+      end
     end
 
     class << self
