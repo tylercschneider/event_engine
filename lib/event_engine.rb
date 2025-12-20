@@ -10,6 +10,7 @@ require "event_engine/event_builder"
 require "event_engine/outbox_writer"
 require "event_engine/schema_snapshot"
 require "event_engine/event_schema"
+require "event_engine/compiled_schema_registry"
 
 module EventEngine
   class << self
