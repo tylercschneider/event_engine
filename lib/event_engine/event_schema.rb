@@ -2,10 +2,12 @@ module EventEngine
   class EventSchema
     def initialize
       @schemas_by_event = {}
+      @finalized = false
     end
 
     # Stores schemas by event_name => event_version => schema
     def register(schema)
+      raise FrozenError, "EventSchema is finalized" if @finalized
       event_name = schema.event_name
       version = schema.event_version
 
@@ -31,6 +33,13 @@ module EventEngine
       versions = @schemas_by_event[event_name]
       return nil unless versions && !versions.empty?
       versions[versions.keys.max]
+    end
+
+    def finalize!
+      @finalized = true
+      @schemas_by_event.each_value(&:freeze)
+      @schemas_by_event.freeze
+      freeze
     end
 
     # Internal accessor for now
