@@ -1,5 +1,11 @@
 module EventEngine
   class EventSchema
+    def self.define(&block)
+      schema = new
+      block.call(schema)
+      schema
+    end
+
     def initialize
       @schemas_by_event = {}
       @finalized = false
