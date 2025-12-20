@@ -13,6 +13,26 @@ module EventEngine
       @schemas_by_event[event_name][version] = schema
     end
 
+    def events
+      @schemas_by_event.keys
+    end
+
+    def versions_for(event_name)
+      versions = @schemas_by_event[event_name]
+      return [] unless versions
+      versions.keys.sort
+    end
+
+    def schema_for(event_name, version)
+      @schemas_by_event.dig(event_name, version)
+    end
+
+    def latest_for(event_name)
+      versions = @schemas_by_event[event_name]
+      return nil unless versions && !versions.empty?
+      versions[versions.keys.max]
+    end
+
     # Internal accessor for now
     def schemas_by_event
       @schemas_by_event
