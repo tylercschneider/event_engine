@@ -12,8 +12,24 @@ module EventEngine
     end
 
     setup do
+      # 1. Compile DSL → schema
+      compiled = DslCompiler.compile([CowFed])
+      compiled.finalize!
+
+      # 2. Merge into EventSchema (no file in this test)
+      event_schema = EventSchema.new
+      compiled.events.each do |event|
+        schema = compiled.latest_for(event).dup
+        schema.event_version = 1
+        event_schema.register(schema)
+      end
+      event_schema.finalize!
+
+      # 3. Load runtime registry from schema
       EventRegistry.reset!
-      EventRegistry.register(CowFed.schema)
+      EventRegistry.load_from_schema!(event_schema)
+
+      # 4. Install helpers from runtime registry
       EventEngine.install_helpers(registry: EventRegistry)
     end
 

@@ -8,13 +8,26 @@ module EventEngine
       event_type :domain
 
       input :cow
-
       required_payload :weight, from: :cow, attr: :weight
     end
 
     setup do
+      # 1. Compile DSL → compiled schemas
+      compiled = DslCompiler.compile([CowFed])
+      compiled.finalize!
+
+      # 2. Build an EventSchema (no file involved in this test)
+      event_schema = EventSchema.new
+      compiled.events.each do |event_name|
+        schema = compiled.latest_for(event_name).dup
+        schema.event_version = 1
+        event_schema.register(schema)
+      end
+      event_schema.finalize!
+
+      # 3. Load runtime registry from schema
       EventRegistry.reset!
-      EventRegistry.register(CowFed.schema)
+      EventRegistry.load_from_schema!(event_schema)
     end
 
     test "emits an OutboxEvent via registry and builder" do
