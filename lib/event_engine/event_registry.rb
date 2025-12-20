@@ -4,6 +4,11 @@ module EventEngine
     class RegistryFrozenError < StandardError; end
 
     class << self
+      def events
+        raise RegistryFrozenError, "EventRegistry not loaded" unless loaded?
+        @loaded_event_schema.events
+      end
+
       def reset!
         @schemas = {}
         @loaded = false
@@ -11,20 +16,28 @@ module EventEngine
 
       def load_from_schema!(event_schema)
         raise RegistryFrozenError, "EventRegistry already loaded" if loaded?
-
-        event_schema.events.each do |event_name|
-          schema = event_schema.latest_for(event_name)
-          @schemas[event_name.to_sym] = schema
-        end
+        @loaded_event_schema = event_schema
 
         @loaded = true
         self
       end
 
-      def current(event_name)
-        @schemas.fetch(event_name.to_sym) do
-          raise UnknownEventError, "Unknown event: #{event_name}"
+      def schema(event_name, version: nil)
+        raise RegistryFrozenError, "EventRegistry not loaded" unless loaded?
+
+        schema =
+          if version
+            @loaded_event_schema.schema_for(event_name, version)
+          else
+            @loaded_event_schema.latest_for(event_name)
+          end
+
+        unless schema
+          raise UnknownEventError,
+                "Unknown #{version ? "version #{version} for " : ""}event: #{event_name}"
         end
+
+        schema
       end
 
       def loaded?

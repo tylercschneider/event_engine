@@ -28,7 +28,7 @@ module EventEngine
   end
 
   def self.install_helpers(registry:)
-    registry_event_names = registry.instance_variable_get(:@schemas).keys
+    registry_event_names = registry.events
 
     registry_event_names.each do |event_name|
       define_singleton_method(event_name) do |**data|

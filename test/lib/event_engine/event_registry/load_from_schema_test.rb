@@ -22,8 +22,8 @@ class EventRegistryLoadFromSchemaTest < ActiveSupport::TestCase
     EventEngine::EventRegistry.reset!
     EventEngine::EventRegistry.load_from_schema!(es)
 
-    cow = EventEngine::EventRegistry.current(:cow_fed)
-    pig = EventEngine::EventRegistry.current(:pig_fed)
+    cow = EventEngine::EventRegistry.schema(:cow_fed)
+    pig = EventEngine::EventRegistry.schema(:pig_fed)
 
     assert_equal 2, cow.event_version
     assert_equal 1, pig.event_version

@@ -5,7 +5,7 @@ module EventEngine
         raise EventRegistry::RegistryFrozenError, "EventRegistry must be loaded before emitting events"
       end
 
-      schema = EventRegistry.current(event_name)
+      schema = EventRegistry.schema(event_name)
       attrs  = EventBuilder.build(schema: schema, data: data)
       attrs[:event_version] = 1
       OutboxWriter.write(attrs)
