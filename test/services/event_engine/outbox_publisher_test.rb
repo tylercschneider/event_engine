@@ -15,6 +15,7 @@ module EventEngine
       event = EventEngine::OutboxEvent.create!(
         event_type: "order.created",
         event_name: "order.created",
+        event_version: 1,
         payload: {filler: "x"}
       )
 
@@ -31,6 +32,7 @@ module EventEngine
       event = EventEngine::OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "x" }
       )
 
@@ -49,6 +51,7 @@ module EventEngine
       event = EventEngine::OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "x" }
       )
 
@@ -63,9 +66,9 @@ module EventEngine
     end
 
     test "publishes only up to the batch size" do
-      e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 1 })
-      e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 2 })
-      e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", payload: { x: 3 })
+      e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 1 })
+      e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 2 })
+      e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 3 })
 
       transport = EventEngine::Transports::InMemoryTransport.new
       publisher = EventEngine::OutboxPublisher.new(transport: transport, batch_size: 2)
@@ -80,6 +83,7 @@ module EventEngine
       skipped = EventEngine::OutboxEvent.create!(
         event_type: "A",
         event_name: "a",
+        event_version: 1,
         payload: { x: 1 },
         attempts: 5
       )
@@ -87,6 +91,7 @@ module EventEngine
       published = EventEngine::OutboxEvent.create!(
         event_type: "A",
         event_name: "a",
+        event_version: 1,
         payload: { x: 2 },
         attempts: 0
       )
@@ -107,6 +112,7 @@ module EventEngine
       event = EventEngine::OutboxEvent.create!(
         event_type: "A",
         event_name: "a",
+        event_version: 1,
         payload: { x: 1 },
         attempts: 4
       )

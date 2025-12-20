@@ -5,6 +5,7 @@ class EventEngine::ReRunPublishTest < ActiveSupport::TestCase
     event = EventEngine::OutboxEvent.create!(
       event_type: "OrderCreated",
       event_name: "order.created",
+      event_version: 1,
       payload: { filler: "x" }
     )
 

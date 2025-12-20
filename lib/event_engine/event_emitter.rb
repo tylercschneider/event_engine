@@ -7,6 +7,7 @@ module EventEngine
 
       schema = EventRegistry.current(event_name)
       attrs  = EventBuilder.build(schema: schema, data: data)
+      attrs[:event_version] = 1
       OutboxWriter.write(attrs)
     end
   end

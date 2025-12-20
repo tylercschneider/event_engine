@@ -7,6 +7,7 @@ module EventEngine
       event = OutboxEvent.create!(
         event_name: "example.event",
         event_type: "example.event",
+        event_version: 1,
         payload: {filler: "dummy"}
       )
 
@@ -14,19 +15,19 @@ module EventEngine
     end
 
     test "outbox event is invalid without event_name" do
-      event = OutboxEvent.new(event_type: "example.event")
+      event = OutboxEvent.new(event_type: "example.event", event_version: 1)
 
       assert_not event.valid?
     end
 
     test "outbox event is invalid without event_type" do
-      event = OutboxEvent.new(event_name: "example.event")
+      event = OutboxEvent.new(event_name: "example.event", event_version: 1)
 
       assert_not event.valid?
     end
 
     test "outbox event is invalid without payload" do
-      event = OutboxEvent.new(event_name: "example.event", event_type: "example.event")
+      event = OutboxEvent.new(event_name: "example.event", event_type: "example.event", event_version: 1)
 
       assert_not event.valid?
     end
@@ -35,6 +36,7 @@ module EventEngine
       OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "a" },
         idempotency_key: "abc-123"
       )
@@ -42,6 +44,7 @@ module EventEngine
       duplicate = OutboxEvent.new(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "b" },
         idempotency_key: "abc-123"
       )
@@ -54,6 +57,7 @@ module EventEngine
       event = OutboxEvent.create!(
         event_type: "example.event",
         event_name: "example.event",
+        event_version: 1,
         payload: {filler: "dummy"}
       )
 
@@ -64,6 +68,7 @@ module EventEngine
       event = OutboxEvent.create!(
         event_type: "example.event",
         event_name: "example.event",
+        event_version: 1,
         payload: {filler: "dummy"}
       )
 
@@ -77,6 +82,7 @@ module EventEngine
       OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "a" },
         idempotency_key: "abc-123"
       )
@@ -85,6 +91,7 @@ module EventEngine
         OutboxEvent.new(
           event_type: "OrderCreated",
           event_name: "order.created",
+          event_version: 1,
           payload: { filler: "b" },
           idempotency_key: "abc-123"
         ).save!(validate: false)
@@ -96,6 +103,7 @@ module EventEngine
       published = OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "x" },
         published_at: Time.current
       )
@@ -103,6 +111,7 @@ module EventEngine
       unpublished = OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "y" }
       )
 
@@ -113,6 +122,7 @@ module EventEngine
       older = OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "a" }
       )
 
@@ -121,6 +131,7 @@ module EventEngine
       newer = OutboxEvent.create!(
         event_type: "OrderCreated",
         event_name: "order.created",
+        event_version: 1,
         payload: { filler: "b" }
       )
 

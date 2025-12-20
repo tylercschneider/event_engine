@@ -6,6 +6,7 @@ module EventEngine
       attrs = {
         event_name: :cow_fed,
         event_type: :domain,
+        event_version: 1,
         payload: { weight: 500 }
       }
 
