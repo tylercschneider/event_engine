@@ -14,6 +14,7 @@ require "event_engine/compiled_schema_registry"
 require "event_engine/file_loaded_registry"
 require "event_engine/dsl_compiler"
 require "event_engine/event_schema_loader"
+require "event_engine/event_schema_writer"
 
 module EventEngine
   class << self
