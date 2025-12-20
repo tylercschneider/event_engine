@@ -7,10 +7,12 @@ module EventEngine
       schema = nil
 
       schema = Module.new.module_eval(File.read(path), path)
-
-      schema.schemas_by_event.each_value do |versions|
-        versions.each_value do |s|
-          registry.register(s)
+      
+      if schema
+        schema.schemas_by_event.each_value do |versions|
+          versions.each_value do |s|
+            registry.register(s)
+          end
         end
       end
 

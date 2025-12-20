@@ -10,9 +10,9 @@ module EventEngine
       File.open(path, "w") do |f|
         f.puts "EventEngine::EventSchema.define do |schema|"
 
-        schemas.each do |schema|
+        schemas.each do |event_schema|
           f.puts "  schema.register("
-          f.puts "    #{schema.to_ruby}"
+          f.puts "    #{event_schema.to_ruby}"
           f.puts "  )"
         end
 

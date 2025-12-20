@@ -16,6 +16,7 @@ require "event_engine/dsl_compiler"
 require "event_engine/event_schema_loader"
 require "event_engine/event_schema_writer"
 require "event_engine/event_schema_merger"
+require "event_engine/event_schema_dumper"
 
 module EventEngine
   class << self
