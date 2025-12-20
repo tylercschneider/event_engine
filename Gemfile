@@ -8,6 +8,11 @@ group :development, :test do
   # Needed for the dummy app database
   gem "sqlite3"
   gem "sprockets-rails"
+  gem "pry"
+  gem "pry-byebug"
+  gem "minitest-reporters"
+  gem "minitest-focus"
+  gem "diffy"
 end
 
 
