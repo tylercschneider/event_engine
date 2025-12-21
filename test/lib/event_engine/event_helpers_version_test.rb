@@ -1,0 +1,45 @@
+require "test_helper"
+require "ostruct"
+
+module EventEngine
+  class EventHelpersVersionTest < ActiveSupport::TestCase
+    class CowFed < EventDefinition
+      event_name :cow_fed
+      event_type :domain
+
+      input :cow
+      required_payload :weight, from: :cow, attr: :weight
+    end
+
+    setup do
+      compiled = DslCompiler.compile([CowFed])
+      compiled.finalize!
+
+      es = EventSchema.new
+      schema = compiled.latest_for(:cow_fed).dup
+      schema.event_version = 1
+      es.register(schema)
+      es.finalize!
+
+      EventRegistry.reset!
+      EventRegistry.load_from_schema!(es)
+
+      EventEngine.install_helpers(registry: EventRegistry)
+    end
+
+    test "helper accepts event_version and emits with that version" do
+      cow = OpenStruct.new(weight: 500)
+
+      event = EventEngine.cow_fed(cow: cow, event_version: 1)
+
+      assert_equal 1, event.event_version
+      assert_equal({ "weight" => 500 }, event.payload)
+    end
+
+    test "helper raises on missing required inputs" do
+      assert_raises(ArgumentError) do
+        EventEngine.cow_fed(event_version: 1)
+      end
+    end
+  end
+end

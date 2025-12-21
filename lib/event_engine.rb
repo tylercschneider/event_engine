@@ -28,11 +28,28 @@ module EventEngine
   end
 
   def self.install_helpers(registry:)
-    registry_event_names = registry.events
+    registry.events.each do |event_name|
+      schema = registry.schema(event_name)
 
-    registry_event_names.each do |event_name|
-      define_singleton_method(event_name) do |**data|
-        EventEmitter.emit(event_name: event_name, data: data)
+      required = schema.required_inputs
+      optional = schema.optional_inputs
+
+      define_singleton_method(event_name) do |**args|
+        event_version = args.delete(:event_version)
+
+        input_keys = required + optional
+        inputs = args.slice(*input_keys)
+
+        missing = required - inputs.keys
+        if missing.any?
+          raise ArgumentError, "Missing required inputs: #{missing.join(', ')}"
+        end
+
+        EventEmitter.emit(
+          event_name: event_name,
+          data: inputs,
+          version: event_version
+        )
       end
     end
   end
