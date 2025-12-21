@@ -1,12 +1,15 @@
 module EventEngine
   class EventEmitter
-    def self.emit(event_name:, data:, version: nil)
+    def self.emit(event_name:, data:, version: nil, occurred_at: nil, metadata: nil)
       unless EventRegistry.loaded?
         raise EventRegistry::RegistryFrozenError, "EventRegistry must be loaded before emitting events"
       end
 
       schema = EventRegistry.schema(event_name, version: version)
       attrs  = EventBuilder.build(schema: schema, data: data)
+
+      attrs[:occurred_at] = occurred_at || Time.current
+      attrs[:metadata]    = metadata
 
       OutboxWriter.write(attrs)
     end

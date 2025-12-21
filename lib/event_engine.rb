@@ -36,6 +36,9 @@ module EventEngine
 
       define_singleton_method(event_name) do |**args|
         event_version = args.delete(:event_version)
+        occurred_at = args.delete(:occurred_at)
+        metadata = args.delete(:metadata)
+
 
         input_keys = required + optional
         inputs = args.slice(*input_keys)
@@ -48,7 +51,9 @@ module EventEngine
         EventEmitter.emit(
           event_name: event_name,
           data: inputs,
-          version: event_version
+          version: event_version,
+          occurred_at: occurred_at,
+          metadata: metadata
         )
       end
     end
