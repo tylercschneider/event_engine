@@ -3,6 +3,8 @@ require "ostruct"
 
 module EventEngine
   class EventHelpersVersionTest < ActiveSupport::TestCase
+    include EventEngineTestHelpers
+
     class CowFed < EventDefinition
       event_name :cow_fed
       event_type :domain
@@ -12,6 +14,7 @@ module EventEngine
     end
 
     setup do
+      @helpers_snapshot = snapshot_event_engine_helpers
       compiled = DslCompiler.compile([CowFed])
       compiled.finalize!
 
@@ -40,6 +43,10 @@ module EventEngine
       assert_raises(ArgumentError) do
         EventEngine.cow_fed(event_version: 1)
       end
+    end
+
+    teardown do
+      restore_event_engine_helpers(@helpers_snapshot)
     end
   end
 end

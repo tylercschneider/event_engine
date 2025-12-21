@@ -30,6 +30,18 @@ module EventEngine
       yield(configuration)
     end
 
+    # Boot-time wiring: file → EventSchemaLoader → Registry → Helpers
+    def boot_from_schema!(schema_path:)
+      event_schema = EventSchemaLoader.load(schema_path)
+
+      EventRegistry.reset!
+      EventRegistry.load_from_schema!(event_schema)
+
+      install_helpers(registry: EventRegistry)
+
+      event_schema
+    end
+
     def install_helpers(registry:)
       registry.events.each do |event_name|
         schema = registry.schema(event_name)
@@ -41,7 +53,6 @@ module EventEngine
           event_version = args.delete(:event_version)
           occurred_at = args.delete(:occurred_at)
           metadata = args.delete(:metadata)
-
 
           input_keys = required + optional
           inputs = args.slice(*input_keys)

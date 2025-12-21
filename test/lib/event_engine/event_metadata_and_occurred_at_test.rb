@@ -2,6 +2,8 @@ require "test_helper"
 require "ostruct"
 
 class EventMetadataAndOccurredAtTest < ActiveSupport::TestCase
+  include EventEngineTestHelpers
+
   class CowFed < EventEngine::EventDefinition
     event_name :cow_fed
     event_type :domain
@@ -10,6 +12,8 @@ class EventMetadataAndOccurredAtTest < ActiveSupport::TestCase
   end
 
   setup do
+    @helpers_snapshot = snapshot_event_engine_helpers
+
     compiled = EventEngine::DslCompiler.compile([CowFed])
     compiled.finalize!
 
@@ -42,5 +46,9 @@ class EventMetadataAndOccurredAtTest < ActiveSupport::TestCase
 
     assert_equal occurred_at, event.occurred_at
     assert_equal metadata.stringify_keys, event.metadata
+  end
+
+  teardown do
+    restore_event_engine_helpers(@helpers_snapshot)
   end
 end

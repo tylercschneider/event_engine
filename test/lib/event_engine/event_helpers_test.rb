@@ -3,6 +3,7 @@ require "ostruct"
 
 module EventEngine
   class EventHelpersTest < ActiveSupport::TestCase
+    include EventEngineTestHelpers
     class CowFed < EventDefinition
       event_name :cow_fed
       event_type :domain
@@ -12,6 +13,8 @@ module EventEngine
     end
 
     setup do
+      @helpers_snapshot = snapshot_event_engine_helpers
+
       # 1. Compile DSL → schema
       compiled = DslCompiler.compile([CowFed])
       compiled.finalize!
@@ -45,6 +48,10 @@ module EventEngine
       assert event.persisted?
       assert_equal "cow_fed", event.event_name
       assert_equal({ "weight" => 500 }, event.payload)
+    end
+
+    teardown do
+      restore_event_engine_helpers(@helpers_snapshot)
     end
   end
 end
