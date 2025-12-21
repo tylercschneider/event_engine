@@ -7,26 +7,44 @@ module EventEngine
     end
 
     def call
+      batch.each do |event|
+        publish_event(event)
+      end
+    end
+
+    private
+
+    def batch
       scope = OutboxEvent.unpublished
-                        .active
-                        .ordered
+                         .active
+                         .ordered
+
       scope = scope.retryable(@max_attempts) if @max_attempts
       scope = scope.limit(@batch_size) if @batch_size
 
-      scope.find_each do |event|
-        begin
-          @transport.publish(event)
-          event.mark_published!
-        rescue => e
-          event.increment_attempts!
-          if @max_attempts && event.attempts >= @max_attempts
-            event.dead_letter!
-            Rails.logger.error(
-              "[EventEngine] Dead-lettered event: event_id=#{event.id}, event_type=#{event.event_type}, attempts=#{event.attempts}, error=#{e.message}"
-            )
-          end
-        end
-      end
+      scope.to_a
+    end
+
+    def publish_event(event)
+      @transport.publish(event)
+      event.update!(published_at: Time.current)
+    rescue => e
+      handle_failure(event, e)
+    end
+
+    def handle_failure(event, error)
+      event.increment!(:attempts)
+
+      return unless @max_attempts
+      return unless event.attempts >= @max_attempts
+
+      event.update!(dead_lettered_at: Time.current)
+
+      Rails.logger.error(
+        "[EventEngine] Dead-lettered event: event_id=#{event.id}, " \
+        "event_name=#{event.event_name}, attempts=#{event.attempts}, " \
+        "error=#{error.message}"
+      )
     end
   end
 end

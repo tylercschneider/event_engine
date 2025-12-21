@@ -137,5 +137,90 @@ module EventEngine
       assert event.dead_lettered?
       assert_nil event.published_at
     end
+
+    test "processes only a single batch per call" do
+      e1 = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 }
+      )
+
+      e2 = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 2 }
+      )
+
+      e3 = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 3 }
+      )
+
+      transport = EventEngine::Transports::InMemoryTransport.new
+
+      publisher = EventEngine::OutboxPublisher.new(
+        transport: transport,
+        batch_size: 2
+      )
+
+      publisher.call
+
+      assert_equal [e1, e2], transport.events
+      assert_nil e3.reload.published_at
+    end
+
+    test "failure of one event does not prevent publishing other events in the same batch" do
+      failing = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: "fail" }
+      )
+
+      succeeding = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: "ok" }
+      )
+
+      transport = Minitest::Mock.new
+
+      transport.expect :publish, nil do |event|
+        raise StandardError, "boom" if event == failing
+        true
+      end
+
+      transport.expect :publish, true do |event|
+        event == succeeding
+      end
+
+      EventEngine::OutboxPublisher.new(
+        transport: transport,
+        batch_size: 10,
+        max_attempts: 3
+      ).call
+
+      failing.reload
+      succeeding.reload
+
+      assert_equal 1, failing.attempts
+      assert_nil failing.published_at
+
+      assert_not_nil succeeding.published_at
+
+      transport.verify
+    end
+
+
   end
 end
