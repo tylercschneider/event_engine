@@ -18,7 +18,7 @@ class EventSchemaDumpTest < ActiveSupport::TestCase
     path = file.path
     file.unlink # ensure non-existent
  
-    EventEngine::EventSchemaDumper.dump(
+    EventEngine::EventSchemaDumper.dump!(
       definitions: [CowFed],
       path: path
     )
@@ -31,12 +31,12 @@ class EventSchemaDumpTest < ActiveSupport::TestCase
 
   test "dump does not create new version when schema unchanged" do
     file = Tempfile.new("event_schema.rb")
-    EventEngine::EventSchemaDumper.dump(
+    EventEngine::EventSchemaDumper.dump!(
       definitions: [CowFed],
       path: file.path
     )
 
-    EventEngine::EventSchemaDumper.dump(
+    EventEngine::EventSchemaDumper.dump!(
       definitions: [CowFed],
       path: file.path
     )
