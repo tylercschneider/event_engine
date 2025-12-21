@@ -16,45 +16,49 @@ require "event_engine/event_schema_loader"
 require "event_engine/event_schema_writer"
 require "event_engine/event_schema_merger"
 require "event_engine/event_schema_dumper"
+require "event_engine/delivery"
 
 module EventEngine
   class << self
     attr_accessor :configuration
-  end
 
-  def self.configure
-    self.configuration ||= Configuration.new
-    yield(configuration)
-  end
+    def configuration
+      @configuration ||= Configuration.new
+    end
 
-  def self.install_helpers(registry:)
-    registry.events.each do |event_name|
-      schema = registry.schema(event_name)
+    def configure
+      yield(configuration)
+    end
 
-      required = schema.required_inputs
-      optional = schema.optional_inputs
+    def install_helpers(registry:)
+      registry.events.each do |event_name|
+        schema = registry.schema(event_name)
 
-      define_singleton_method(event_name) do |**args|
-        event_version = args.delete(:event_version)
-        occurred_at = args.delete(:occurred_at)
-        metadata = args.delete(:metadata)
+        required = schema.required_inputs
+        optional = schema.optional_inputs
+
+        define_singleton_method(event_name) do |**args|
+          event_version = args.delete(:event_version)
+          occurred_at = args.delete(:occurred_at)
+          metadata = args.delete(:metadata)
 
 
-        input_keys = required + optional
-        inputs = args.slice(*input_keys)
+          input_keys = required + optional
+          inputs = args.slice(*input_keys)
 
-        missing = required - inputs.keys
-        if missing.any?
-          raise ArgumentError, "Missing required inputs: #{missing.join(', ')}"
+          missing = required - inputs.keys
+          if missing.any?
+            raise ArgumentError, "Missing required inputs: #{missing.join(', ')}"
+          end
+
+          EventEmitter.emit(
+            event_name: event_name,
+            data: inputs,
+            version: event_version,
+            occurred_at: occurred_at,
+            metadata: metadata
+          )
         end
-
-        EventEmitter.emit(
-          event_name: event_name,
-          data: inputs,
-          version: event_version,
-          occurred_at: occurred_at,
-          metadata: metadata
-        )
       end
     end
   end

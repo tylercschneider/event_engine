@@ -1,6 +1,6 @@
 module EventEngine
   class Configuration
-    attr_accessor :transport, :batch_size, :max_attempts
+    attr_accessor :transport, :batch_size, :max_attempts, :delivery_adapter
 
     def initialize
       @batch_size = 100

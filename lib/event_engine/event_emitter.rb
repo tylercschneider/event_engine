@@ -11,7 +11,16 @@ module EventEngine
       attrs[:occurred_at] = occurred_at || Time.current
       attrs[:metadata]    = metadata
 
-      OutboxWriter.write(attrs)
+      event = OutboxWriter.write(attrs)
+
+      Delivery.enqueue do
+        OutboxPublisher.new(
+          transport: EventEngine.configuration.transport,
+          batch_size: EventEngine.configuration.batch_size
+        ).call
+      end
+
+      event
     end
   end
 end
