@@ -8,6 +8,7 @@ module EventEngine
         event_name: "example.event",
         event_type: "example.event",
         event_version: 1,
+        occurred_at: Time.current,
         payload: {filler: "dummy"}
       )
 
@@ -37,6 +38,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "a" },
         idempotency_key: "abc-123"
       )
@@ -45,6 +47,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "b" },
         idempotency_key: "abc-123"
       )
@@ -58,6 +61,7 @@ module EventEngine
         event_type: "example.event",
         event_name: "example.event",
         event_version: 1,
+        occurred_at: Time.current,
         payload: {filler: "dummy"}
       )
 
@@ -69,6 +73,7 @@ module EventEngine
         event_type: "example.event",
         event_name: "example.event",
         event_version: 1,
+        occurred_at: Time.current,
         payload: {filler: "dummy"}
       )
 
@@ -83,6 +88,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "a" },
         idempotency_key: "abc-123"
       )
@@ -92,6 +98,7 @@ module EventEngine
           event_type: "OrderCreated",
           event_name: "order.created",
           event_version: 1,
+          occurred_at: Time.current,
           payload: { filler: "b" },
           idempotency_key: "abc-123"
         ).save!(validate: false)
@@ -104,6 +111,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "x" },
         published_at: Time.current
       )
@@ -112,6 +120,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "y" }
       )
 
@@ -123,6 +132,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "a" }
       )
 
@@ -132,6 +142,7 @@ module EventEngine
         event_type: "OrderCreated",
         event_name: "order.created",
         event_version: 1,
+        occurred_at: Time.current,
         payload: { filler: "b" }
       )
 

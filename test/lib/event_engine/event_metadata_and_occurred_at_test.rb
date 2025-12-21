@@ -10,13 +10,13 @@ class EventMetadataAndOccurredAtTest < ActiveSupport::TestCase
   end
 
   setup do
-    compiled = DslCompiler.compile([CowFed])
+    compiled = EventEngine::DslCompiler.compile([CowFed])
     compiled.finalize!
 
     schema = compiled.latest_for(:cow_fed)
     schema.event_version = 1
 
-    event_schema = EventSchema.new
+    event_schema = EventEngine::EventSchema.new
     event_schema.register(schema)
     event_schema.finalize!
 

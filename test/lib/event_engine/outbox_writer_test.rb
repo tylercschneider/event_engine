@@ -7,6 +7,7 @@ module EventEngine
         event_name: :cow_fed,
         event_type: :domain,
         event_version: 1,
+        occurred_at: Time.current,
         payload: { weight: 500 }
       }
 

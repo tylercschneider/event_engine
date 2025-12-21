@@ -5,7 +5,19 @@ require "event_engine/event_definition/schemas"
 
 module EventEngine
   class EventDefinition
-    RESERVED_PAYLOAD_FIELDS = %i[event_name event_type].freeze
+    RESERVED_PAYLOAD_FIELDS = %i[
+      event_name
+      event_type
+      event_version
+      occurred_at
+      created_at
+      updated_at
+      published_at
+      metadata
+      idempotency_key
+      attempts
+      dead_lettered_at
+    ].freeze
 
     include Inputs
     include Payloads

@@ -6,6 +6,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
       event_type: "OrderCreated",
       event_name: "order.created",
       event_version: 1,
+      occurred_at: Time.current,
       payload: { filler: "x" }
     )
 
@@ -23,6 +24,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
       event_type: "OrderCreated",
       event_name: "order.created",
       event_version: 1,
+      occurred_at: Time.current,
       payload: { filler: "x" }
     )
 
@@ -46,9 +48,9 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
   end
 
   test "job respects configured batch size" do
-    e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 1 })
-    e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 2 })
-    e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, payload: { x: 3 })
+    e1 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, occurred_at: Time.current, payload: { x: 1 })
+    e2 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, occurred_at: Time.current, payload: { x: 2 })
+    e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, occurred_at: Time.current, payload: { x: 3 })
 
     transport = EventEngine::Transports::InMemoryTransport.new
     EventEngine.configure do |c|

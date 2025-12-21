@@ -6,6 +6,7 @@ class EventEngine::EndToEndPublishTest < ActiveSupport::TestCase
       event_type: "OrderCreated",
       event_name: "order.created",
       event_version: 1,
+      occurred_at: Time.current,
       payload: { filler: "x" }
     )
 

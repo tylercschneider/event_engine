@@ -7,6 +7,7 @@ class OutboxEventVersionTest < ActiveSupport::TestCase
       event_name: "cow_fed",
       event_type: "domain",
       event_version: 2,
+      occurred_at: Time.current,
       payload: { "weight" => 500 }
     )
 
