@@ -18,6 +18,7 @@ require "event_engine/event_schema_writer"
 require "event_engine/event_schema_merger"
 require "event_engine/event_schema_dumper"
 require "event_engine/delivery"
+require "event_engine/schema_drift_guard"
 
 module EventEngine
   class << self
