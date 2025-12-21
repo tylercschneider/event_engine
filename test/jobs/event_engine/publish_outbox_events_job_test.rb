@@ -63,4 +63,25 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
     assert_equal [e1, e2], transport.events
     assert_nil e3.reload.published_at
   end
+
+  test "job invokes outbox publisher with configured transport and options" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 }
+      )
+
+      transport = EventEngine::Transports::InMemoryTransport.new
+
+      EventEngine.configuration.transport = transport
+      EventEngine.configuration.batch_size = 10
+      EventEngine.configuration.max_attempts = 5
+
+      EventEngine::PublishOutboxEventsJob.new.perform
+
+      assert_equal [event], transport.events
+      assert_not_nil event.reload.published_at
+    end
 end

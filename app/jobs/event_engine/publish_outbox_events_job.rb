@@ -8,7 +8,8 @@ module EventEngine
 
       OutboxPublisher.new(
         transport: config.transport,
-        batch_size: config.batch_size
+        batch_size: config.batch_size,
+        max_attempts: config.max_attempts
       ).call
     end
   end
