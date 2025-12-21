@@ -6,6 +6,7 @@ namespace :event_engine do
         definitions: EventEngine::EventDefinition.descendants,
         path: Rails.root.join("event_schema.rb")
       )
+      puts "Dumping EventEngine schema to #{Rails.root.join("event_schema.rb")}"
     end
   end
 end

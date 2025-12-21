@@ -6,7 +6,7 @@ module EventEngine
 
       schema = nil
 
-      schema = Module.new.module_eval(File.read(path), path)
+      schema = Module.new.module_eval(File.read(path.to_s), path.to_s)
       
       if schema
         schema.schemas_by_event.each_value do |versions|
