@@ -16,6 +16,7 @@ module EventEngine
       {
         event_name: schema.event_name,
         event_type: schema.event_type,
+        event_version: schema.event_version,
         payload: payload
       }
     end
