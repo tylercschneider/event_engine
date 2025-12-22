@@ -62,4 +62,55 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
 
     assert_equal [1, 2, 3], merged.versions_for(:cow_fed)
   end
+
+  test "merge is a no-op when compiled and file registries are fully aligned" do
+    file = EventEngine::EventSchema.new
+    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+    file.finalize!
+
+    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
+
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+
+    # Same versions
+    assert_equal [1], merged.versions_for(:cow_fed)
+
+    # Same schema fingerprint (structural equality)
+    assert_equal(
+      file.schema_for(:cow_fed, 1).fingerprint,
+      merged.schema_for(:cow_fed, 1).fingerprint
+    )
+  end
+
+  test "merge introduces change when any compiled event differs from file registry" do
+    file = EventEngine::EventSchema.new
+    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+    file.register(schema(event_name: :pig_fed, version: 1, payload: [{ name: :p, from: :pig, attr: :protein }]))
+    file.finalize!
+
+    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
+    compiled.register(compiled_schema(event_name: :pig_fed, payload: [{ name: :fat, from: :pig, attr: :fat }])) # drift
+
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+
+    assert_equal [1], merged.versions_for(:cow_fed)
+    assert_equal [1, 2], merged.versions_for(:pig_fed)
+  end
+
+  test "merge never reuses prior versions even if compiled matches older schema" do
+    file = EventEngine::EventSchema.new
+    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+    file.register(schema(event_name: :cow_fed, version: 2, payload: [{ name: :age, from: :cow, attr: :age }]))
+    file.register(schema(event_name: :cow_fed, version: 3, payload: [{ name: :color, from: :cow, attr: :color }]))
+    file.finalize!
+
+    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
+
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+
+    assert_equal [1, 2, 3, 4], merged.versions_for(:cow_fed)
+  end
 end
