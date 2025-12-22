@@ -1,5 +1,14 @@
 module EventEngine
   class EventSchemaWriter
+    HEADER = <<~RUBY.freeze
+      # This file is authoritative in production.
+      # It is generated from EventDefinitions via:
+      #
+      #   bin/rails event_engine:schema_dump
+      #
+      # Do not edit manually.
+    RUBY
+
     def self.write(path, event_schema)
       schemas =
         event_schema
@@ -8,6 +17,8 @@ module EventEngine
           .sort_by { |s| [s.event_name.to_s, s.event_version] }
 
       File.open(path, "w") do |f|
+        f.puts HEADER
+        f.puts
         f.puts "EventEngine::EventSchema.define do |schema|"
 
         schemas.each do |event_schema|
