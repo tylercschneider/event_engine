@@ -74,5 +74,16 @@ module EventEngine
         end
       end
     end
+
+    def compiled_schema_registry
+      EventEngine::CompiledSchemaRegistry.load_from_definitions
+    end
+
+    def file_schema_registry
+      loader = EventEngine::EventSchemaLoader.new(
+        Rails.root.join("db/event_schema.rb")
+      )
+      EventEngine::FileLoadedRegistry.new(loader.load)
+    end
   end
 end
