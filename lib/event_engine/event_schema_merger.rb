@@ -32,5 +32,21 @@ module EventEngine
       merged.finalize!
       merged
     end
+
+    def self.changed?(compiled_registry, file_registry)
+      compiled_registry.events.any? do |event|
+        compiled_schema = compiled_registry.latest_for(event)
+
+        existing_versions = file_registry.versions_for(event)
+        latest_version = existing_versions.max
+        latest_schema = latest_version && file_registry.schema_for(event, latest_version)
+
+        # New event entirely
+        return true unless latest_schema
+
+        # Fingerprint mismatch means a new version would be created
+        latest_schema.fingerprint != compiled_schema.fingerprint
+      end
+    end
   end
 end
