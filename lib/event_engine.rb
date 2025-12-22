@@ -23,8 +23,6 @@ require "event_engine/schema_drift_guard"
 
 module EventEngine
   class << self
-    attr_accessor :configuration
-
     def configuration
       @configuration ||= Configuration.new
     end
