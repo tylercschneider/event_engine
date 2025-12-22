@@ -22,6 +22,7 @@ require "event_engine/delivery"
 require "event_engine/schema_drift_guard"
 
 module EventEngine
+  mattr_accessor :_installed_event_helpers, default: Set.new
   class << self
     def configuration
       @configuration ||= Configuration.new
@@ -44,6 +45,11 @@ module EventEngine
     end
 
     def install_helpers(registry:)
+      _installed_event_helpers.each do |method_name|
+        singleton_class.remove_method(method_name) if singleton_class.method_defined?(method_name)
+      end
+      _installed_event_helpers.clear
+
       registry.events.each do |event_name|
         schema = registry.schema(event_name)
 
@@ -59,9 +65,10 @@ module EventEngine
           inputs = args.slice(*input_keys)
 
           missing = required - inputs.keys
-          if missing.any?
-            raise ArgumentError, "Missing required inputs: #{missing.join(', ')}"
-          end
+          raise ArgumentError, "Missing required inputs: #{missing.join(', ')}" if missing.any?
+
+          unknown = args.keys - input_keys
+          raise ArgumentError, "Unknown inputs: #{unknown.join(', ')}" if unknown.any?
 
           EventEmitter.emit(
             event_name: event_name,
@@ -71,6 +78,8 @@ module EventEngine
             metadata: metadata
           )
         end
+
+        _installed_event_helpers << event_name
       end
     end
 
