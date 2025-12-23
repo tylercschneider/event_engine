@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     event_engine (0.1.0)
+      activesupport
       rails (>= 7.1.6)
 
 GEM
