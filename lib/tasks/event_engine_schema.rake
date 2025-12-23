@@ -10,8 +10,20 @@ namespace :event_engine do
   namespace :schema do
     desc "Regenerate event_schema.rb from EventDefinitions"
     task dump: :environment do
+      EventEngine::DefinitionLoader.ensure_loaded!
+
+      descendants = EventEngine::EventDefinition.descendants
+      if descendants.empty?
+        raise <<~MSG
+          EventEngine found no EventDefinitions.
+
+          Expected definitions to be loaded during eager load.
+          Ensure they live in an eager-load path (e.g. app/event_definitions).
+        MSG
+      end
+
       EventEngine::EventSchemaDumper.dump!(
-        definitions: EventEngine::EventDefinition.descendants,
+        definitions: descendants,
         path: Rails.root.join("event_schema.rb")
       )
       puts "Dumping EventEngine schema to #{Rails.root.join("event_schema.rb")}"

@@ -24,7 +24,13 @@ class EngineBootTest < ActiveSupport::TestCase
     RUBY
     file.close
 
-    refute EventEngine.respond_to?(:cow_fed)
+    assert_nothing_raised do
+      EventEngine::Engine.send(
+        :load_schema_and_install_helpers,
+        schema_path: file.path
+      )
+    end
+
 
     EventEngine::Engine.send(
       :load_schema_and_install_helpers,

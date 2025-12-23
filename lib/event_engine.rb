@@ -21,6 +21,8 @@ require "event_engine/event_schema_merger"
 require "event_engine/event_schema_dumper"
 require "event_engine/delivery"
 require "event_engine/schema_drift_guard"
+require "event_engine/railtie"
+require "event_engine/definition_loader"
 
 module EventEngine
   mattr_accessor :_installed_event_helpers, default: Set.new
