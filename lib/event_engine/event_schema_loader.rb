@@ -1,7 +1,7 @@
 module EventEngine
   class EventSchemaLoader
     def self.load(path)
-      registry = FileLoadedRegistry.new
+      registry = SchemaRegistry.new
       return registry unless File.exist?(path)
 
       contents = File.read(path.to_s)

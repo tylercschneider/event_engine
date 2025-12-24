@@ -11,7 +11,6 @@ module EventEngine
       @finalized = false
     end
 
-    # Stores schemas by event_name => event_version => schema
     def register(schema)
       raise FrozenError, "EventSchema is finalized" if @finalized
       event_name = schema.event_name
@@ -48,7 +47,6 @@ module EventEngine
       freeze
     end
 
-    # Internal accessor for now
     def schemas_by_event
       @schemas_by_event
     end

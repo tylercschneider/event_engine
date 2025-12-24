@@ -1,7 +1,7 @@
 module EventEngine
   class DslCompiler
     def self.compile(definitions)
-      registry = CompiledSchemaRegistry.new
+      registry = SchemaRegistry.new
 
       Array(definitions).each do |definition|
         schema = definition.schema

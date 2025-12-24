@@ -12,8 +12,7 @@ require "event_engine/event_registry"
 require "event_engine/event_builder"
 require "event_engine/outbox_writer"
 require "event_engine/event_schema"
-require "event_engine/compiled_schema_registry"
-require "event_engine/file_loaded_registry"
+require "event_engine/schema_registry"
 require "event_engine/dsl_compiler"
 require "event_engine/event_schema_loader"
 require "event_engine/event_schema_writer"
@@ -87,14 +86,14 @@ module EventEngine
     end
 
     def compiled_schema_registry
-      EventEngine::CompiledSchemaRegistry.load_from_definitions
+      EventEngine::SchemaRegistry.load_from_definitions
     end
 
     def file_schema_registry
       loader = EventEngine::EventSchemaLoader.new(
         Rails.root.join("db/event_schema.rb")
       )
-      EventEngine::FileLoadedRegistry.new(loader.load)
+      EventEngine::SchemaRegistry.new(loader.load)
     end
   end
 end

@@ -23,7 +23,7 @@ class EventSchemaLoaderTest < ActiveSupport::TestCase
 
     registry = EventEngine::EventSchemaLoader.load(file.path)
 
-    assert_instance_of EventEngine::FileLoadedRegistry, registry
+    assert_instance_of EventEngine::SchemaRegistry, registry
     assert_equal [1], registry.versions_for(:cow_fed)
   ensure
     file.unlink

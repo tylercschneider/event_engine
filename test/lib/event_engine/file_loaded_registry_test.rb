@@ -13,7 +13,7 @@ class FileLoadedRegistryTest < ActiveSupport::TestCase
   end
 
   test "register stores schemas in underlying EventSchema" do
-    registry = EventEngine::FileLoadedRegistry.new
+    registry = EventEngine::SchemaRegistry.new
 
     schema = build_schema(event_name: :cow_fed, version: 1)
     registry.register(schema)
@@ -22,7 +22,7 @@ class FileLoadedRegistryTest < ActiveSupport::TestCase
   end
 
   test "exposes read-only EventSchema query methods" do
-    registry = EventEngine::FileLoadedRegistry.new
+    registry = EventEngine::SchemaRegistry.new
 
     v1 = build_schema(event_name: :cow_fed, version: 1)
     v2 = build_schema(event_name: :cow_fed, version: 2)
@@ -36,7 +36,7 @@ class FileLoadedRegistryTest < ActiveSupport::TestCase
   end
 
   test "finalize! freezes underlying EventSchema" do
-    registry = EventEngine::FileLoadedRegistry.new
+    registry = EventEngine::SchemaRegistry.new
     registry.register(build_schema(event_name: :cow_fed, version: 1))
 
     registry.finalize!

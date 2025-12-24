@@ -28,10 +28,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     assert_equal [1], merged.versions_for(:cow_fed)
   end
@@ -41,10 +41,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :age, from: :cow, attr: :age }]))
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     assert_equal [1, 2], merged.versions_for(:cow_fed)
   end
@@ -55,10 +55,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 2, payload: [{ name: :age, from: :cow, attr: :age }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     assert_equal [1, 2, 3], merged.versions_for(:cow_fed)
   end
@@ -68,10 +68,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     # Same versions
     assert_equal [1], merged.versions_for(:cow_fed)
@@ -89,11 +89,11 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :pig_fed, version: 1, payload: [{ name: :p, from: :pig, attr: :protein }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
     compiled.register(compiled_schema(event_name: :pig_fed, payload: [{ name: :fat, from: :pig, attr: :fat }])) # drift
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     assert_equal [1], merged.versions_for(:cow_fed)
     assert_equal [1, 2], merged.versions_for(:pig_fed)
@@ -106,10 +106,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 3, payload: [{ name: :color, from: :cow, attr: :color }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::FileLoadedRegistry.new(file))
+    merged = EventEngine::EventSchemaMerger.merge(compiled, EventEngine::SchemaRegistry.new(file))
 
     assert_equal [1, 2, 3, 4], merged.versions_for(:cow_fed)
   end
@@ -119,10 +119,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    file_registry = EventEngine::FileLoadedRegistry.new(file)
+    file_registry = EventEngine::SchemaRegistry.new(file)
 
     refute EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
   end
@@ -132,10 +132,10 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :age, from: :cow, attr: :age }]))
 
-    file_registry = EventEngine::FileLoadedRegistry.new(file)
+    file_registry = EventEngine::SchemaRegistry.new(file)
 
     assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
   end
@@ -146,11 +146,11 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     file.register(schema(event_name: :pig_fed, version: 1, payload: [{ name: :p, from: :pig, attr: :protein }]))
     file.finalize!
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
     compiled.register(compiled_schema(event_name: :pig_fed, payload: [{ name: :fat, from: :pig, attr: :fat }])) # drift
 
-    file_registry = EventEngine::FileLoadedRegistry.new(file)
+    file_registry = EventEngine::SchemaRegistry.new(file)
 
     assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
   end

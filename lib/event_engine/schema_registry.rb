@@ -1,5 +1,5 @@
 module EventEngine
-  class FileLoadedRegistry
+  class SchemaRegistry
     def initialize(event_schema = EventSchema.new)
       @event_schema = event_schema
     end
@@ -7,8 +7,6 @@ module EventEngine
     def register(schema)
       @event_schema.register(schema)
     end
-
-    # ---- Delegate read API ----
 
     def events
       @event_schema.events
@@ -26,7 +24,6 @@ module EventEngine
       @event_schema.latest_for(event_name)
     end
 
-    # Expose underlying EventSchema for tooling
     def event_schema
       @event_schema
     end

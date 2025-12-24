@@ -13,7 +13,7 @@ class CompiledSchemaRegistryTest < ActiveSupport::TestCase
   end
 
   test "register delegates to underlying EventSchema" do
-    registry = EventEngine::CompiledSchemaRegistry.new
+    registry = EventEngine::SchemaRegistry.new
 
     schema = build_schema(event_name: :cow_fed, version: 1)
     registry.register(schema)
@@ -23,7 +23,7 @@ class CompiledSchemaRegistryTest < ActiveSupport::TestCase
   end
 
   test "exposes EventSchema query methods" do
-    registry = EventEngine::CompiledSchemaRegistry.new
+    registry = EventEngine::SchemaRegistry.new
 
     v1 = build_schema(event_name: :cow_fed, version: 1)
     v2 = build_schema(event_name: :cow_fed, version: 2)

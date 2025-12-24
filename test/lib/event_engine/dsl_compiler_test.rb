@@ -9,10 +9,10 @@ class DslCompilerTest < ActiveSupport::TestCase
     required_payload :weight, from: :cow, attr: :weight
   end
 
-  test "compiles EventDefinition classes into CompiledSchemaRegistry" do
+  test "compiles EventDefinition classes into a SchemaRegistry" do
     registry = EventEngine::DslCompiler.compile([CowFed])
 
-    assert_instance_of EventEngine::CompiledSchemaRegistry, registry
+    assert_instance_of EventEngine::SchemaRegistry, registry
     assert_equal [:cow_fed], registry.events
 
     schema = registry.latest_for(:cow_fed)

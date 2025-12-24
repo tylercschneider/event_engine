@@ -18,7 +18,7 @@ class SchemaEventVersionTest < ActiveSupport::TestCase
     # file-loaded schema is empty (no prior versions)
     file_schema = EventEngine::EventSchema.new
     file_schema.finalize!
-    file_registry = EventEngine::FileLoadedRegistry.new(file_schema)
+    file_registry = EventEngine::SchemaRegistry.new(file_schema)
 
     # compiled schema has no version
     compiled_schema = EventEngine::EventDefinition::Schema.new(
@@ -30,7 +30,7 @@ class SchemaEventVersionTest < ActiveSupport::TestCase
       payload_fields: []
     )
 
-    compiled = EventEngine::CompiledSchemaRegistry.new
+    compiled = EventEngine::SchemaRegistry.new
     compiled.register(compiled_schema)
     compiled.finalize!
 
