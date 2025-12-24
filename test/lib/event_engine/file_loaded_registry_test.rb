@@ -18,7 +18,7 @@ class FileLoadedRegistryTest < ActiveSupport::TestCase
     schema = build_schema(event_name: :cow_fed, version: 1)
     registry.register(schema)
 
-    assert_equal schema, registry.schema_for(:cow_fed, 1)
+    assert_equal schema, registry.event_schema.schema_for(:cow_fed, 1)
   end
 
   test "exposes read-only EventSchema query methods" do

@@ -28,12 +28,13 @@ module EventEngine
       end
       event_schema.finalize!
 
+      registry = SchemaRegistry.new
       # 3. Load runtime registry from schema
-      EventRegistry.reset!
-      EventRegistry.load_from_schema!(event_schema)
+      registry.reset!
+      registry.load_from_schema!(event_schema)
 
       # 4. Install helpers from runtime registry
-      EventEngine.install_helpers(registry: EventRegistry)
+      EventEngine.install_helpers(registry: registry)
     end
 
     test "defines helper method on EventEngine" do

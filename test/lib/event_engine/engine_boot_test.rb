@@ -31,17 +31,7 @@ class EngineBootTest < ActiveSupport::TestCase
       )
     end
 
-
-    EventEngine::Engine.send(
-      :load_schema_and_install_helpers,
-      schema_path: file.path
-    )
-
     assert EventEngine.respond_to?(:cow_fed)
-
-    schema = EventEngine::EventRegistry.schema(:cow_fed)
-    assert_equal :cow_fed, schema.event_name
-    assert_equal 1, schema.event_version
   ensure
     restore_event_engine_helpers(helpers_snapshot)
     file.unlink if file

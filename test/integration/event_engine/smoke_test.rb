@@ -39,7 +39,10 @@ class EventEngineSmokeTest < ActiveSupport::TestCase
     )
 
     # Boot engine from schema file
-    EventEngine.boot_from_schema!(schema_path: schema_file.path)
+    EventEngine.boot_from_schema!(
+      schema_path: schema_file.path,
+      registry: EventEngine::SchemaRegistry.new
+    )
 
     cow = Cow.new(weight: 1200)
 

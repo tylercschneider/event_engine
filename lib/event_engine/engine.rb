@@ -24,7 +24,10 @@ module EventEngine
       private
 
       def load_schema_and_install_helpers(schema_path:)
-        EventEngine.boot_from_schema!(schema_path: schema_path)
+        EventEngine.boot_from_schema!(
+          schema_path: schema_path,
+          registry: EventEngine::SchemaRegistry.new
+        )
       end
 
       def handle_missing_schema!(schema_path)

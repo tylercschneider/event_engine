@@ -24,10 +24,11 @@ class EventMetadataAndOccurredAtTest < ActiveSupport::TestCase
     event_schema.register(schema)
     event_schema.finalize!
 
-    EventEngine::EventRegistry.reset!
-    EventEngine::EventRegistry.load_from_schema!(event_schema)
+    registry = EventEngine::SchemaRegistry.new
+    registry.reset!
+    registry.load_from_schema!(event_schema)
 
-    EventEngine.install_helpers(registry: EventEngine::EventRegistry)
+    EventEngine.install_helpers(registry: registry)
   end
 
   test "occurred_at and metadata are persisted on outbox event" do

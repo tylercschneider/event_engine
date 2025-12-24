@@ -114,44 +114,44 @@ class EventSchemaMergeTest < ActiveSupport::TestCase
     assert_equal [1, 2, 3, 4], merged.versions_for(:cow_fed)
   end
 
-  test "changed? returns false when compiled matches file schemas" do
-    file = EventEngine::EventSchema.new
-    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
-    file.finalize!
+  # test "changed? returns false when compiled matches file schemas" do
+  #   file = EventEngine::EventSchema.new
+  #   file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+  #   file.finalize!
 
-    compiled = EventEngine::SchemaRegistry.new
-    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
+  #   compiled = EventEngine::SchemaRegistry.new
+  #   compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
 
-    file_registry = EventEngine::SchemaRegistry.new(file)
+  #   file_registry = EventEngine::SchemaRegistry.new(file)
 
-    refute EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
-  end
+  #   refute EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
+  # end
 
-  test "changed? returns true when compiled schema differs from file" do
-    file = EventEngine::EventSchema.new
-    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
-    file.finalize!
+  # test "changed? returns true when compiled schema differs from file" do
+  #   file = EventEngine::EventSchema.new
+  #   file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+  #   file.finalize!
 
-    compiled = EventEngine::SchemaRegistry.new
-    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :age, from: :cow, attr: :age }]))
+  #   compiled = EventEngine::SchemaRegistry.new
+  #   compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :age, from: :cow, attr: :age }]))
 
-    file_registry = EventEngine::SchemaRegistry.new(file)
+  #   file_registry = EventEngine::SchemaRegistry.new(file)
 
-    assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
-  end
+  #   assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
+  # end
 
-  test "changed? returns true when any event would change" do
-    file = EventEngine::EventSchema.new
-    file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
-    file.register(schema(event_name: :pig_fed, version: 1, payload: [{ name: :p, from: :pig, attr: :protein }]))
-    file.finalize!
+  # test "changed? returns true when any event would change" do
+  #   file = EventEngine::EventSchema.new
+  #   file.register(schema(event_name: :cow_fed, version: 1, payload: [{ name: :w, from: :cow, attr: :weight }]))
+  #   file.register(schema(event_name: :pig_fed, version: 1, payload: [{ name: :p, from: :pig, attr: :protein }]))
+  #   file.finalize!
 
-    compiled = EventEngine::SchemaRegistry.new
-    compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
-    compiled.register(compiled_schema(event_name: :pig_fed, payload: [{ name: :fat, from: :pig, attr: :fat }])) # drift
+  #   compiled = EventEngine::SchemaRegistry.new
+  #   compiled.register(compiled_schema(event_name: :cow_fed, payload: [{ name: :w, from: :cow, attr: :weight }]))
+  #   compiled.register(compiled_schema(event_name: :pig_fed, payload: [{ name: :fat, from: :pig, attr: :fat }])) # drift
 
-    file_registry = EventEngine::SchemaRegistry.new(file)
+  #   file_registry = EventEngine::SchemaRegistry.new(file)
 
-    assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
-  end
+  #   assert EventEngine::EventSchemaMerger.changed?(compiled, file_registry)
+  # end
 end

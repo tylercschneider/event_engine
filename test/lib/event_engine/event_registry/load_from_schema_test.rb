@@ -19,11 +19,12 @@ class EventRegistryLoadFromSchemaTest < ActiveSupport::TestCase
     es.register(build_schema(event_name: :pig_fed, version: 1))
     es.finalize!
 
-    EventEngine::EventRegistry.reset!
-    EventEngine::EventRegistry.load_from_schema!(es)
+    registry = EventEngine::SchemaRegistry.new
+    registry.reset!
+    registry.load_from_schema!(es)
 
-    cow = EventEngine::EventRegistry.schema(:cow_fed)
-    pig = EventEngine::EventRegistry.schema(:pig_fed)
+    cow = registry.schema(:cow_fed)
+    pig = registry.schema(:pig_fed)
 
     assert_equal 2, cow.event_version
     assert_equal 1, pig.event_version

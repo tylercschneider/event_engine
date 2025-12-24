@@ -3,10 +3,11 @@ module EventEngine
     def self.merge(compiled_registry, file_registry)
       merged = EventSchema.new
 
-      # Copy all file-loaded schemas first
-      file_registry.events.each do |event|
-        file_registry.versions_for(event).each do |version|
-          merged.register(file_registry.schema_for(event, version))
+      file_loaded_schema = file_registry.event_schema
+
+      file_loaded_schema.events.each do |event|
+        file_loaded_schema.versions_for(event).each do |version|
+          merged.register(file_loaded_schema.schema_for(event, version))
         end
       end
 
@@ -40,7 +41,7 @@ module EventEngine
 
         existing_versions = file_registry.versions_for(event)
         latest_version = existing_versions.max
-        latest_schema = latest_version && file_registry.schema_for(event, latest_version)
+        latest_schema = latest_version && file_registry.schema(event, version: latest_version)
 
         # New event entirely
         return true unless latest_schema

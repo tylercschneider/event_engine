@@ -8,7 +8,6 @@ require "event_engine/kafka_producer"
 require "event_engine/configuration"
 require "event_engine/event_definition"
 require "event_engine/event_emitter"
-require "event_engine/event_registry"
 require "event_engine/event_builder"
 require "event_engine/outbox_writer"
 require "event_engine/event_schema"
@@ -35,13 +34,13 @@ module EventEngine
     end
 
     # Boot-time wiring: file → EventSchemaLoader → Registry → Helpers
-    def boot_from_schema!(schema_path:)
+    def boot_from_schema!(schema_path:, registry:)
       event_schema = EventSchemaLoader.load(schema_path)
 
-      EventRegistry.reset!
-      EventRegistry.load_from_schema!(event_schema)
+      registry.reset!
+      registry.load_from_schema!(event_schema)
 
-      install_helpers(registry: EventRegistry)
+      install_helpers(registry: registry)
 
       event_schema
     end
@@ -75,6 +74,7 @@ module EventEngine
           EventEmitter.emit(
             event_name: event_name,
             data: inputs,
+            registry: registry,
             version: event_version,
             occurred_at: occurred_at,
             metadata: metadata

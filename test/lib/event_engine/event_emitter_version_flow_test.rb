@@ -19,8 +19,9 @@ class EventEmitterVersionFlowTest < ActiveSupport::TestCase
     es.register(build_schema(version: 2))
     es.finalize!
 
-    EventEngine::EventRegistry.reset!
-    EventEngine::EventRegistry.load_from_schema!(es)
+    @registry = EventEngine::SchemaRegistry.new
+    @registry.reset!
+    @registry.load_from_schema!(es)
   end
 
   test "emitter persists event_version selected by registry" do
@@ -29,7 +30,8 @@ class EventEmitterVersionFlowTest < ActiveSupport::TestCase
     event = EventEngine::EventEmitter.emit(
       event_name: :cow_fed,
       data: { cow: cow },
-      version: 1
+      version: 1,
+      registry: @registry
     )
 
     assert_equal 1, event.event_version

@@ -24,10 +24,12 @@ module EventEngine
       es.register(schema)
       es.finalize!
 
-      EventRegistry.reset!
-      EventRegistry.load_from_schema!(es)
+      registry = SchemaRegistry.new
 
-      EventEngine.install_helpers(registry: EventRegistry)
+      registry.reset!
+      registry.load_from_schema!(es)
+
+      EventEngine.install_helpers(registry: registry)
     end
 
     test "helper accepts event_version and emits with that version" do

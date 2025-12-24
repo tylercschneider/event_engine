@@ -12,12 +12,13 @@ module EventEngine
     end
 
     setup do
-      # 1. Compile DSL → compiled schemas
+    # 1. Compile DSL → compiled schemas
       compiled = DslCompiler.compile([CowFed])
       compiled.finalize!
 
       # 2. Build an EventSchema (no file involved in this test)
       event_schema = EventSchema.new
+
       compiled.events.each do |event_name|
         schema = compiled.latest_for(event_name).dup
         schema.event_version = 1
@@ -26,8 +27,9 @@ module EventEngine
       event_schema.finalize!
 
       # 3. Load runtime registry from schema
-      EventRegistry.reset!
-      EventRegistry.load_from_schema!(event_schema)
+      @registry = EventEngine::SchemaRegistry.new
+      @registry.reset!
+      @registry.load_from_schema!(event_schema)
     end
 
     test "emits an OutboxEvent via registry and builder" do
@@ -35,7 +37,8 @@ module EventEngine
 
       event = EventEmitter.emit(
         event_name: :cow_fed,
-        data: { cow: cow }
+        data: { cow: cow },
+        registry: @registry
       )
 
       assert event.persisted?
