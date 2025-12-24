@@ -13,6 +13,7 @@ namespace :event_engine do
       EventEngine::DefinitionLoader.ensure_loaded!
 
       descendants = EventEngine::EventDefinition.descendants
+
       if descendants.empty?
         raise <<~MSG
           EventEngine found no EventDefinitions.
@@ -21,12 +22,15 @@ namespace :event_engine do
           Ensure they live in an eager-load path (e.g. app/event_definitions).
         MSG
       end
+      
+      path = Rails.root.join("event_schema.rb")
 
       EventEngine::EventSchemaDumper.dump!(
         definitions: descendants,
-        path: Rails.root.join("event_schema.rb")
+        path: path
       )
-      puts "Dumping EventEngine schema to #{Rails.root.join("event_schema.rb")}"
+
+      puts "Dumping EventEngine schema to #{path}"
     end
   end
 end
