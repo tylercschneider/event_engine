@@ -16,8 +16,9 @@ module EventEngine
       Delivery.enqueue do
         transport = EventEngine.configuration.transport
         unless transport
-          raise EventEngine::Configuration::InvalidConfigurationError,
-            "EventEngine transport not configured. Set config.transport in your initializer."
+          Rails.logger.warn("[EventEngine] No transport configured — event written to outbox but not published. " \
+            "Set config.transport in your initializer to enable publishing.")
+          next
         end
 
         OutboxPublisher.new(
