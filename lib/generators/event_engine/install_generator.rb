@@ -24,7 +24,7 @@ module EventEngine
 
           Next steps:
             1. Define events in app/event_definitions/
-            2. Run: bin/rails event_engine:schema_dump
+            2. Run: bin/rails event_engine:schema:dump
             3. Commit db/event_schema.rb
             4. Configure transport in config/initializers/event_engine.rb
 

@@ -36,7 +36,7 @@ namespace :event_engine do
         MSG
       end
       
-      path = Rails.root.join("event_schema.rb")
+      path = Rails.root.join("db/event_schema.rb")
 
       EventEngine::EventSchemaDumper.dump!(
         definitions: descendants,

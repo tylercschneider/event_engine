@@ -86,14 +86,19 @@ module EventEngine
     end
 
     def compiled_schema_registry
-      EventEngine::SchemaRegistry.load_from_definitions
+      DefinitionLoader.ensure_loaded!
+      definitions = EventDefinition.descendants
+      compiled = DslCompiler.compile(definitions)
+      registry = SchemaRegistry.new
+      registry.load_from_schema!(compiled)
+      registry
     end
 
     def file_schema_registry
-      loader = EventEngine::EventSchemaLoader.new(
-        Rails.root.join("db/event_schema.rb")
-      )
-      EventEngine::SchemaRegistry.new(loader.load)
+      loaded = EventSchemaLoader.load(Rails.root.join("db/event_schema.rb"))
+      registry = SchemaRegistry.new
+      registry.load_from_schema!(loaded)
+      registry
     end
   end
 end

@@ -31,7 +31,13 @@ module EventEngine
       end
 
       def handle_missing_schema!(schema_path)
-        return if Rails.env.development? || Rails.env.test?
+        if Rails.env.development? || Rails.env.test?
+          Rails.logger.warn(
+            "[EventEngine] Schema file not found at #{schema_path}. " \
+            "Run: bin/rails event_engine:schema:dump"
+          )
+          return
+        end
 
         raise <<~MSG
           EventEngine schema file missing.
@@ -40,7 +46,7 @@ module EventEngine
             #{schema_path}
 
           Run:
-            bin/rails event_engine:schema_dump
+            bin/rails event_engine:schema:dump
 
           And commit the generated file.
         MSG

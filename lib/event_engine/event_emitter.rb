@@ -14,8 +14,14 @@ module EventEngine
       event = OutboxWriter.write(attrs)
 
       Delivery.enqueue do
+        transport = EventEngine.configuration.transport
+        unless transport
+          raise EventEngine::Configuration::InvalidConfigurationError,
+            "EventEngine transport not configured. Set config.transport in your initializer."
+        end
+
         OutboxPublisher.new(
-          transport: EventEngine.configuration.transport,
+          transport: transport,
           batch_size: EventEngine.configuration.batch_size
         ).call
       end
