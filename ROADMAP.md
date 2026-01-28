@@ -26,9 +26,9 @@ Clean up existing code and finalize interfaces.
 Features that make EventEngine genuinely usable in real projects.
 
 - [x] **Add ActiveSupport::Notifications instrumentation** — Instrumented: `event_engine.event_emitted`, `event_engine.event_published`, `event_engine.event_dead_lettered`, `event_engine.publish_batch`. ([#44](https://github.com/tylercschneider/event_engine/issues/44))
-- [ ] **Add lightweight event subscriber/callback system** — In-process hooks that fire after an event is written to the outbox (not a Kafka consumer). Support block-based and class-based registration. Stays within producer-side scope. ([#45](https://github.com/tylercschneider/event_engine/issues/45))
+- [x] ~~**Add lightweight event subscriber/callback system**~~ — Skipped. ActiveSupport::Notifications (#44) covers in-process hooks. Kafka consumers are out of scope. ([#45](https://github.com/tylercschneider/event_engine/issues/45))
 - [x] **Add dead letter inspection and recovery tooling** — Added `retry!` method, `dead_letters:list`, `dead_letters:retry[ID]`, and `dead_letters:retry:all` rake tasks. ([#46](https://github.com/tylercschneider/event_engine/issues/46))
-- [ ] **Add outbox cleanup strategy** — Configurable retention period, rake task and optional ActiveJob for purging published events older than retention. Never delete unpublished or dead-lettered events. ([#47](https://github.com/tylercschneider/event_engine/issues/47))
+- [x] **Add outbox cleanup strategy** — Added `retention_period` config, `outbox:cleanup` rake task, and `OutboxCleanupJob`. Never deletes unpublished or dead-lettered events. ([#47](https://github.com/tylercschneider/event_engine/issues/47))
 
 ## Phase 4 — Documentation
 

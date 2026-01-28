@@ -324,6 +324,42 @@ event.retry!  # Resets attempts to 0, clears dead_lettered_at
 
 ---
 
+## Outbox cleanup
+
+Published events accumulate in the outbox table. Configure automatic cleanup
+to remove old events while preserving unpublished and dead-lettered events.
+
+### Configuration
+
+```ruby
+EventEngine.configure do |config|
+  config.retention_period = 30.days  # nil to disable cleanup
+end
+```
+
+### Manual cleanup
+
+```bash
+bin/rails event_engine:outbox:cleanup
+```
+
+### Automated cleanup
+
+Schedule `OutboxCleanupJob` with your preferred scheduler:
+
+```ruby
+# Using sidekiq-scheduler
+Sidekiq::Cron::Job.create(
+  name: "EventEngine cleanup",
+  cron: "0 3 * * *",  # Daily at 3am
+  class: "EventEngine::OutboxCleanupJob"
+)
+```
+
+The job silently skips cleanup if `retention_period` is not configured.
+
+---
+
 ## Troubleshooting & common errors
 
 ### Missing schema in production
