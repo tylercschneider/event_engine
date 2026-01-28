@@ -20,6 +20,7 @@ module EventEngine
           event_name: event.event_name,
           event_type: event.event_type,
           event_version: event.event_version,
+          idempotency_key: event.idempotency_key,
           payload: event.payload,
           metadata: event.metadata,
           occurred_at: event.occurred_at

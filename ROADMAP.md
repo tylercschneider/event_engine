@@ -10,16 +10,16 @@ Tracked as [GitHub Issues](https://github.com/tylercschneider/event_engine/issue
 
 Quick wins that immediately improve how the project presents to reviewers.
 
-- [ ] **Complete gemspec metadata** — Fill in homepage, summary, description, allowed_push_host. Add changelog_uri and source_code_uri to metadata. ([#39](https://github.com/tylercschneider/event_engine/issues/39))
-- [ ] **Add GitHub Actions CI workflow** — Run `bundle exec rake test` on push/PR to main with Ruby matrix (3.2, 3.3). ([#40](https://github.com/tylercschneider/event_engine/issues/40))
-- [ ] **Add CHANGELOG.md** — Document v0.1.0 using Keep a Changelog format. ([#41](https://github.com/tylercschneider/event_engine/issues/41))
+- [x] **Complete gemspec metadata** — Fill in homepage, summary, description, allowed_push_host. Add changelog_uri and source_code_uri to metadata. ([#39](https://github.com/tylercschneider/event_engine/issues/39))
+- [x] **Add GitHub Actions CI workflow** — Run `bundle exec rake test` on push/PR to main with Ruby matrix (3.2, 3.3). ([#40](https://github.com/tylercschneider/event_engine/issues/40))
+- [x] **Add CHANGELOG.md** — Document v0.1.0 using Keep a Changelog format. ([#41](https://github.com/tylercschneider/event_engine/issues/41))
 
 ## Phase 2 — Core Improvements
 
 Clean up existing code and finalize interfaces.
 
-- [ ] **Flesh out Kafka transport adapter** — Make the Kafka adapter properly configurable (topic naming strategy, producer settings passthrough, partition key support, error handling). EventEngine does NOT manage Kafka — it provides a clean adapter for developers who bring their own Kafka setup. Document the transport interface contract. ([#42](https://github.com/tylercschneider/event_engine/issues/42))
-- [ ] **Document idempotency_key intent and usage** — Clarify that idempotency_key is set on outbox events and passed downstream to Kafka/consumers. It is NOT enforced by the outbox writer — enforcement is the consumer's responsibility. Add YARD docs and README section. ([#43](https://github.com/tylercschneider/event_engine/issues/43))
+- [x] **Flesh out Kafka transport adapter** — Kept minimal (EventEngine does NOT manage Kafka). Added idempotency_key to published payload. Documented transport interface contract in README. ([#42](https://github.com/tylercschneider/event_engine/issues/42))
+- [x] **Document idempotency_key intent and usage** — Auto-generated as UUID by default, with optional override. Passed to transports for consumer deduplication. Added README section. ([#43](https://github.com/tylercschneider/event_engine/issues/43))
 
 ## Phase 3 — New Capabilities
 

@@ -23,6 +23,26 @@ class KafkaTransportTest < ActiveSupport::TestCase
     assert_equal "cow.fed", published[:payload][:event_name]
   end
 
+  def test_includes_idempotency_key_in_payload
+    event = EventEngine::OutboxEvent.new(
+      event_name: "cow.fed",
+      event_type: "domain",
+      event_version: 1,
+      payload: { amount: 5 },
+      metadata: {},
+      occurred_at: Time.current,
+      idempotency_key: "unique-key-123"
+    )
+
+    producer = FakeKafkaProducer.new
+    transport = EventEngine::Transports::Kafka.new(producer: producer)
+
+    transport.publish(event)
+
+    published = producer.published.first
+    assert_equal "unique-key-123", published[:payload][:idempotency_key]
+  end
+
   private
 
   class FakeKafkaProducer

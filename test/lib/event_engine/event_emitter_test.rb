@@ -46,5 +46,31 @@ module EventEngine
       assert_equal "domain", event.event_type
       assert_equal({ "weight" => 500 }, event.payload)
     end
+
+    test "auto-generates idempotency_key as UUID" do
+      cow = OpenStruct.new(weight: 500)
+
+      event = EventEmitter.emit(
+        event_name: :cow_fed,
+        data: { cow: cow },
+        registry: @registry
+      )
+
+      assert_not_nil event.idempotency_key
+      assert_match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i, event.idempotency_key)
+    end
+
+    test "allows overriding idempotency_key" do
+      cow = OpenStruct.new(weight: 500)
+
+      event = EventEmitter.emit(
+        event_name: :cow_fed,
+        data: { cow: cow },
+        registry: @registry,
+        idempotency_key: "custom-key-123"
+      )
+
+      assert_equal "custom-key-123", event.idempotency_key
+    end
   end
 end

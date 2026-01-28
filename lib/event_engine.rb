@@ -61,6 +61,7 @@ module EventEngine
           event_version = args.delete(:event_version)
           occurred_at = args.delete(:occurred_at)
           metadata = args.delete(:metadata)
+          idempotency_key = args.delete(:idempotency_key)
 
           input_keys = required + optional
           inputs = args.slice(*input_keys)
@@ -77,7 +78,8 @@ module EventEngine
             registry: registry,
             version: event_version,
             occurred_at: occurred_at,
-            metadata: metadata
+            metadata: metadata,
+            idempotency_key: idempotency_key
           )
         end
 

@@ -1,6 +1,6 @@
 module EventEngine
   class EventEmitter
-    def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil)
+    def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil, idempotency_key: nil)
       unless registry.loaded?
         raise SchemaRegistry::RegistryFrozenError, "EventRegistry must be loaded before emitting events"
       end
@@ -10,6 +10,7 @@ module EventEngine
 
       attrs[:occurred_at] = occurred_at || Time.current
       attrs[:metadata] = metadata
+      attrs[:idempotency_key] = idempotency_key || SecureRandom.uuid
 
       event = OutboxWriter.write(attrs)
 
