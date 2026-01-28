@@ -292,6 +292,38 @@ end
 
 ---
 
+## Dead letter recovery
+
+Events that fail publishing after `max_attempts` are dead-lettered. Use rake
+tasks to inspect and retry them.
+
+### List dead-lettered events
+
+```bash
+bin/rails event_engine:dead_letters:list
+```
+
+### Retry a single event
+
+```bash
+bin/rails event_engine:dead_letters:retry[123]
+```
+
+### Retry all dead-lettered events
+
+```bash
+bin/rails event_engine:dead_letters:retry:all
+```
+
+### Programmatic retry
+
+```ruby
+event = EventEngine::OutboxEvent.dead_lettered.find(123)
+event.retry!  # Resets attempts to 0, clears dead_lettered_at
+```
+
+---
+
 ## Troubleshooting & common errors
 
 ### Missing schema in production
