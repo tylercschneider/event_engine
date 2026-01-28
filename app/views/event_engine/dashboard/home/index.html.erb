@@ -1,1 +1,23 @@
 <h1>EventEngine Dashboard</h1>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat-label">Total Events</span>
+    <span class="stat-total"><%= @total %></span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label">Published</span>
+    <span class="stat-published"><%= @published %></span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label">Unpublished</span>
+    <span class="stat-unpublished"><%= @unpublished %></span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label">Dead Lettered</span>
+    <span class="stat-dead-lettered"><%= @dead_lettered %></span>
+  </div>
+</div>
