@@ -1,0 +1,45 @@
+<h1>Event: <%= @event.event_name %></h1>
+
+<dl>
+  <dt>ID</dt>
+  <dd><%= @event.id %></dd>
+
+  <dt>Event Name</dt>
+  <dd><%= @event.event_name %></dd>
+
+  <dt>Event Type</dt>
+  <dd><%= @event.event_type %></dd>
+
+  <dt>Event Version</dt>
+  <dd><%= @event.event_version %></dd>
+
+  <dt>Idempotency Key</dt>
+  <dd><%= @event.idempotency_key %></dd>
+
+  <dt>Status</dt>
+  <dd>
+    <% if @event.dead_lettered? %>
+      Dead Lettered (attempts: <%= @event.attempts %>)
+    <% elsif @event.published_at? %>
+      Published at <%= @event.published_at.strftime("%Y-%m-%d %H:%M:%S") %>
+    <% else %>
+      Pending (attempts: <%= @event.attempts %>)
+    <% end %>
+  </dd>
+
+  <dt>Occurred At</dt>
+  <dd><%= @event.occurred_at.strftime("%Y-%m-%d %H:%M:%S") %></dd>
+
+  <dt>Created At</dt>
+  <dd><%= @event.created_at.strftime("%Y-%m-%d %H:%M:%S") %></dd>
+</dl>
+
+<h2>Payload</h2>
+<pre class="payload"><%= JSON.pretty_generate(@event.payload) %></pre>
+
+<% if @event.metadata.present? %>
+  <h2>Metadata</h2>
+  <pre class="metadata"><%= JSON.pretty_generate(@event.metadata) %></pre>
+<% end %>
+
+<p><%= link_to "Back to Events", dashboard_events_path %></p>
