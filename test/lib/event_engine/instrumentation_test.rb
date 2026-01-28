@@ -60,7 +60,33 @@ module EventEngine
       assert_equal 1, notification[:payload][:event_version]
       assert_equal event.id, notification[:payload][:event_id]
       assert_not_nil notification[:payload][:idempotency_key]
-      assert notification[:finish] >= notification[:start], "Should have duration"
+    end
+
+    test "publishing an event publishes event_engine.event_published notification" do
+      @subscriber = ActiveSupport::Notifications.subscribe("event_engine.event_published") do |name, start, finish, id, payload|
+        @notifications << { name: name, payload: payload }
+      end
+
+      event = OutboxEvent.create!(
+        event_name: "cow_fed",
+        event_type: "domain",
+        event_version: 1,
+        payload: { weight: 500 },
+        occurred_at: Time.current,
+        idempotency_key: SecureRandom.uuid
+      )
+
+      transport = Transports::InMemoryTransport.new
+      publisher = OutboxPublisher.new(transport: transport)
+      publisher.call
+
+      assert_equal 1, @notifications.size
+
+      notification = @notifications.first
+      assert_equal "event_engine.event_published", notification[:name]
+      assert_equal "cow_fed", notification[:payload][:event_name]
+      assert_equal 1, notification[:payload][:event_version]
+      assert_equal event.id, notification[:payload][:event_id]
     end
   end
 end

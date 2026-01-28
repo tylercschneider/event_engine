@@ -28,6 +28,12 @@ module EventEngine
     def publish_event(event)
       @transport.publish(event)
       event.update!(published_at: Time.current)
+
+      ActiveSupport::Notifications.instrument("event_engine.event_published", {
+        event_name: event.event_name,
+        event_version: event.event_version,
+        event_id: event.id
+      })
     rescue => e
       handle_failure(event, e)
     end
