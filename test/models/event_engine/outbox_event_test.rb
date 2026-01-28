@@ -148,5 +148,26 @@ module EventEngine
 
       assert_equal [older, newer], OutboxEvent.unpublished.ordered.to_a
     end
+
+    # dead letter recovery
+    test "retry! resets attempts and clears dead_lettered_at" do
+      event = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { filler: "a" },
+        attempts: 5,
+        dead_lettered_at: Time.current
+      )
+
+      assert event.dead_lettered?
+
+      event.retry!
+
+      assert_equal 0, event.attempts
+      assert_nil event.dead_lettered_at
+      assert_not event.dead_lettered?
+    end
   end
 end

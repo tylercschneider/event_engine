@@ -21,6 +21,10 @@ module EventEngine
       dead_lettered_at.present?
     end
 
+    def retry!
+      update!(attempts: 0, dead_lettered_at: nil)
+    end
+
     def increment_attempts!
       update!(attempts: (attempts || 0) + 1)
     end
