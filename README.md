@@ -264,6 +264,34 @@ Override the auto-generated UUID when you need domain-specific deduplication:
 
 ---
 
+## Instrumentation
+
+EventEngine publishes `ActiveSupport::Notifications` for observability. Subscribe
+to these events to integrate with APM tools, custom dashboards, or logging.
+
+### Available notifications
+
+| Notification | When | Payload |
+|--------------|------|---------|
+| `event_engine.event_emitted` | Event written to outbox | `event_name`, `event_version`, `event_id`, `idempotency_key` |
+| `event_engine.event_published` | Event sent to transport | `event_name`, `event_version`, `event_id` |
+| `event_engine.event_dead_lettered` | Event exceeds max attempts | `event_name`, `event_version`, `event_id`, `attempts`, `error_message`, `error_class` |
+| `event_engine.publish_batch` | Batch processing complete | `count` |
+
+### Example subscriber
+
+```ruby
+ActiveSupport::Notifications.subscribe("event_engine.event_emitted") do |name, start, finish, id, payload|
+  Rails.logger.info("[EventEngine] Emitted #{payload[:event_name]} (id=#{payload[:event_id]})")
+end
+
+ActiveSupport::Notifications.subscribe("event_engine.event_dead_lettered") do |name, start, finish, id, payload|
+  Alerting.notify("Event dead-lettered: #{payload[:event_name]} after #{payload[:attempts]} attempts")
+end
+```
+
+---
+
 ## Troubleshooting & common errors
 
 ### Missing schema in production
