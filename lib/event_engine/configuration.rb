@@ -2,7 +2,7 @@ module EventEngine
   class Configuration
     class InvalidConfigurationError < StandardError; end
 
-    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts
+    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts, :retention_period
 
     VALID_DELIVERY_ADAPTERS = %i[inline active_job].freeze
 
@@ -11,6 +11,7 @@ module EventEngine
       @transport = nil
       @batch_size = 100
       @max_attempts = 5
+      @retention_period = nil
     end
 
     def validate!
