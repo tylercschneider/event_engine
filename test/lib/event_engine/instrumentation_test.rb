@@ -119,6 +119,33 @@ module EventEngine
       assert_equal "FailingTransport error", notification[:payload][:error_message]
       assert_equal "RuntimeError", notification[:payload][:error_class]
     end
+
+    test "batch publishing publishes event_engine.publish_batch notification" do
+      @subscriber = ActiveSupport::Notifications.subscribe("event_engine.publish_batch") do |name, start, finish, id, payload|
+        @notifications << { name: name, payload: payload }
+      end
+
+      3.times do |i|
+        OutboxEvent.create!(
+          event_name: "cow_fed",
+          event_type: "domain",
+          event_version: 1,
+          payload: { weight: 500 + i },
+          occurred_at: Time.current,
+          idempotency_key: SecureRandom.uuid
+        )
+      end
+
+      transport = Transports::InMemoryTransport.new
+      publisher = OutboxPublisher.new(transport: transport)
+      publisher.call
+
+      assert_equal 1, @notifications.size
+
+      notification = @notifications.first
+      assert_equal "event_engine.publish_batch", notification[:name]
+      assert_equal 3, notification[:payload][:count]
+    end
   end
 
   class FailingTransport

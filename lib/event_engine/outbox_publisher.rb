@@ -7,9 +7,14 @@ module EventEngine
     end
 
     def call
-      batch.each do |event|
+      events = batch
+      events.each do |event|
         publish_event(event)
       end
+
+      ActiveSupport::Notifications.instrument("event_engine.publish_batch", {
+        count: events.size
+      })
     end
 
     private
