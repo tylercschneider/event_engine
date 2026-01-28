@@ -88,5 +88,42 @@ module EventEngine
       assert_equal 1, notification[:payload][:event_version]
       assert_equal event.id, notification[:payload][:event_id]
     end
+
+    test "dead-lettering an event publishes event_engine.event_dead_lettered notification" do
+      @subscriber = ActiveSupport::Notifications.subscribe("event_engine.event_dead_lettered") do |name, start, finish, id, payload|
+        @notifications << { name: name, payload: payload }
+      end
+
+      event = OutboxEvent.create!(
+        event_name: "cow_fed",
+        event_type: "domain",
+        event_version: 1,
+        payload: { weight: 500 },
+        occurred_at: Time.current,
+        idempotency_key: SecureRandom.uuid,
+        attempts: 2
+      )
+
+      failing_transport = FailingTransport.new
+      publisher = OutboxPublisher.new(transport: failing_transport, max_attempts: 3)
+      publisher.call
+
+      assert_equal 1, @notifications.size
+
+      notification = @notifications.first
+      assert_equal "event_engine.event_dead_lettered", notification[:name]
+      assert_equal "cow_fed", notification[:payload][:event_name]
+      assert_equal 1, notification[:payload][:event_version]
+      assert_equal event.id, notification[:payload][:event_id]
+      assert_equal 3, notification[:payload][:attempts]
+      assert_equal "FailingTransport error", notification[:payload][:error_message]
+      assert_equal "RuntimeError", notification[:payload][:error_class]
+    end
+  end
+
+  class FailingTransport
+    def publish(_event)
+      raise "FailingTransport error"
+    end
   end
 end

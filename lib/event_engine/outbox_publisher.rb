@@ -46,6 +46,15 @@ module EventEngine
 
       event.update!(dead_lettered_at: Time.current)
 
+      ActiveSupport::Notifications.instrument("event_engine.event_dead_lettered", {
+        event_name: event.event_name,
+        event_version: event.event_version,
+        event_id: event.id,
+        attempts: event.attempts,
+        error_message: error.message,
+        error_class: error.class.name
+      })
+
       Rails.logger.error(
         "[EventEngine] Dead-lettered event: event_id=#{event.id}, " \
         "event_name=#{event.event_name}, attempts=#{event.attempts}, " \
