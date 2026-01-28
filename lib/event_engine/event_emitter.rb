@@ -14,6 +14,13 @@ module EventEngine
 
       event = OutboxWriter.write(attrs)
 
+      ActiveSupport::Notifications.instrument("event_engine.event_emitted", {
+        event_name: event.event_name,
+        event_version: event.event_version,
+        event_id: event.id,
+        idempotency_key: event.idempotency_key
+      })
+
       Delivery.enqueue do
         transport = EventEngine.configuration.transport
         unless transport
