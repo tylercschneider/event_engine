@@ -5,18 +5,18 @@ Gem::Specification.new do |spec|
   spec.version     = EventEngine::VERSION
   spec.authors     = ["tylercschneider"]
   spec.email       = ["tylercschneider@gmail.com"]
-  spec.homepage    = "TODO"
-  spec.summary     = "TODO: Summary of EventEngine."
-  spec.description = "TODO: Description of EventEngine."
+  spec.homepage    = "https://github.com/tylercschneider/event_engine"
+  spec.summary     = "Schema-first event pipeline engine for Rails"
+  spec.description = "A Rails engine providing schema-first event definitions, outbox pattern persistence, and pluggable transport adapters. Define events with a Ruby DSL, compile to a canonical schema, and publish through Kafka or custom transports."
   spec.license     = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the "allowed_push_host"
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
+  # spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-  spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+  spec.metadata["source_code_uri"] = "https://github.com/tylercschneider/event_engine"
+  spec.metadata["changelog_uri"] = "https://github.com/tylercschneider/event_engine/blob/main/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
