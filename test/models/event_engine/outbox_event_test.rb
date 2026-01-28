@@ -149,6 +149,68 @@ module EventEngine
       assert_equal [older, newer], OutboxEvent.unpublished.ordered.to_a
     end
 
+    # cleanup scopes
+    test "published_before scope returns events published before given time" do
+      old_event = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: 40.days.ago,
+        payload: { filler: "old" },
+        published_at: 40.days.ago
+      )
+
+      recent_event = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: 5.days.ago,
+        payload: { filler: "recent" },
+        published_at: 5.days.ago,
+        idempotency_key: SecureRandom.uuid
+      )
+
+      cutoff = 30.days.ago
+      assert_includes OutboxEvent.published_before(cutoff), old_event
+      assert_not_includes OutboxEvent.published_before(cutoff), recent_event
+    end
+
+    test "cleanable scope excludes unpublished and dead-lettered events" do
+      published = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { filler: "a" },
+        published_at: 40.days.ago
+      )
+
+      unpublished = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { filler: "b" },
+        idempotency_key: SecureRandom.uuid
+      )
+
+      dead_lettered = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { filler: "c" },
+        published_at: 40.days.ago,
+        dead_lettered_at: Time.current,
+        idempotency_key: SecureRandom.uuid
+      )
+
+      cleanable = OutboxEvent.cleanable
+      assert_includes cleanable, published
+      assert_not_includes cleanable, unpublished
+      assert_not_includes cleanable, dead_lettered
+    end
+
     # dead letter recovery
     test "retry! resets attempts and clears dead_lettered_at" do
       event = OutboxEvent.create!(
