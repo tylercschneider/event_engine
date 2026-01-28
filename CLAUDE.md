@@ -72,3 +72,24 @@ end
 - **Outbox pattern** for reliable event delivery before transport
 - **DSL compilation** — definition classes are never used at runtime; only the compiled schema file is
 - **Dynamic method installation** — `EventEngine.install_helpers` defines singleton methods on the module from registry contents
+
+## Development Process (TDD)
+
+Follow this cycle for all feature work:
+
+1. **Plan** — Decide what needs to be built and break it into tasks
+2. **Write failing test** — Create the simplest test that fails for the desired behavior
+3. **Make it pass** — Write minimal code to make the test pass
+4. **Commit** — Commit the passing test and implementation
+5. **Refactor** — Clean up code while keeping tests green
+6. **Verify** — Run full test suite to ensure no regressions
+7. **Commit** — Commit the refactored code
+8. **Repeat** — Continue with next test until task is complete
+9. **Push** — Push changes when feature/task is complete
+
+### Commit Guidelines
+
+- Commit after each test passes (small, incremental commits)
+- Commit after refactoring (separate from feature commits)
+- Push only when a feature or task is fully complete
+- Use imperative mood in commit messages (e.g., "Add idempotency_key support")
