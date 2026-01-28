@@ -25,5 +25,41 @@ namespace :event_engine do
       puts "-" * 80
       puts "Total: #{events.count} event(s)"
     end
+
+    desc "Retry a dead-lettered event by ID"
+    task :retry, [:event_id] => :environment do |_t, args|
+      event_id = args[:event_id]
+
+      unless event_id
+        puts "Usage: rake event_engine:dead_letters:retry[EVENT_ID]"
+        next
+      end
+
+      event = EventEngine::OutboxEvent.dead_lettered.find_by(id: event_id)
+
+      unless event
+        puts "No dead-lettered event found with ID #{event_id}"
+        next
+      end
+
+      event.retry!
+      puts "Retried 1 event (ID: #{event.id})"
+    end
+
+    namespace :retry do
+      desc "Retry all dead-lettered events"
+      task all: :environment do
+        events = EventEngine::OutboxEvent.dead_lettered
+        count = events.count
+
+        if count.zero?
+          puts "No dead-lettered events to retry."
+          next
+        end
+
+        events.find_each(&:retry!)
+        puts "Retried #{count} event(s)"
+      end
+    end
   end
 end
