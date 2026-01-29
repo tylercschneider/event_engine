@@ -40,7 +40,7 @@ Polish after code stabilizes.
 
 Capstone feature. Depends on instrumentation ([#44](https://github.com/tylercschneider/event_engine/issues/44)) and dead letter tooling ([#46](https://github.com/tylercschneider/event_engine/issues/46)).
 
-- [ ] **Add basic observability dashboard** — Mountable Rails engine at `/event_engine/dashboard`. Shows outbox stats, event volume by name, dead letter queue with retry, recent events with payload inspection. Server-rendered HTML. Operational health view — heavier analytics live in the separate ingestion/dashboard repo. ([#49](https://github.com/tylercschneider/event_engine/issues/49))
+- [x] **Add basic observability dashboard** — Mountable at `/event_engine/dashboard`. Shows outbox stats, events list with pagination, dead letters with retry, payload inspection. Server-rendered HTML with `dashboard_auth` config for access control. ([#49](https://github.com/tylercschneider/event_engine/issues/49))
 
 ---
 

@@ -360,6 +360,48 @@ The job silently skips cleanup if `retention_period` is not configured.
 
 ---
 
+## Dashboard
+
+EventEngine includes an optional observability dashboard for monitoring your
+event pipeline.
+
+### Setup
+
+1. Configure authentication in your initializer:
+
+```ruby
+EventEngine.configure do |config|
+  config.dashboard_auth = ->(controller) {
+    # Return true to allow access, false to deny
+    controller.current_user&.admin?
+  }
+end
+```
+
+2. Mount the engine in your routes (if not already mounted):
+
+```ruby
+# config/routes.rb
+mount EventEngine::Engine => "/event_engine"
+```
+
+3. Access the dashboard at `/event_engine/dashboard`
+
+### Features
+
+- **Overview** — Total events, published, unpublished, and dead-lettered counts
+- **Events list** — Browse all events with pagination and status
+- **Event details** — Inspect payload and metadata
+- **Dead letters** — View and retry failed events
+
+### Security
+
+The dashboard is protected by `dashboard_auth`. If not configured or if the
+callable returns false, the dashboard returns 403 Forbidden. Implement your
+own authorization logic based on your app's requirements.
+
+---
+
 ## Troubleshooting & common errors
 
 ### Missing schema in production
