@@ -15,14 +15,14 @@ module EventEngine
 
       errors = klass.schema_errors
 
-      assert_equal 8, errors.length
+      assert_equal 7, errors.length
       assert errors.any? { |e| e.include?("event_name is required") }
-      assert errors.any? { |e| e.include?("event_name is required") }
+      assert errors.any? { |e| e.include?("event_type is required") }
       assert errors.any? { |e| e.include?("unknown input") }
       assert errors.any? { |e| e.include?("reserved name") }
       assert errors.any? { |e| e.include?("duplicate payload field") }
       assert errors.any? { |e| e.include?("must have a from") }
-      assert errors.any? { |e| e.include?("must have an attr") }
+      # attr: is now optional - omitting it means passthrough the input value directly
     end
 
     test "schema raises once with all errors" do

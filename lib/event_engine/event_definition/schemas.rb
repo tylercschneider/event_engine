@@ -111,9 +111,7 @@ module EventEngine
               errors << "payload field #{name} references unknown input: #{field[:from]}"
             end
 
-            if field[:attr].nil?
-              errors << "payload field #{name} must have an attr:"
-            end
+            # attr: is optional - when omitted, input value is used directly (passthrough)
 
             seen[name] = true
           end

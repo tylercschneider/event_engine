@@ -9,7 +9,7 @@ module EventEngine
         input = data[field[:from]]
         next if input.nil? && !field[:required]
 
-        value = input.public_send(field[:attr])
+        value = field[:attr] ? input.public_send(field[:attr]) : input
         payload[field[:name]] = value
       end
 
