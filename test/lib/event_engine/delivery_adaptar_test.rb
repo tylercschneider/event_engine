@@ -36,6 +36,24 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
     assert called, "Should publish after commit"
   end
 
+  test "inline adapter does not publish on rollback" do
+    called = false
+
+    EventEngine.configure do |config|
+      config.delivery_adapter = :inline
+    end
+
+    ActiveRecord::Base.transaction do
+      EventEngine::Delivery.enqueue do
+        called = true
+      end
+
+      raise ActiveRecord::Rollback
+    end
+
+    assert_not called, "Should not publish on rollback"
+  end
+
   test "active_job adapter enqueues PublishOutboxEventsJob" do
     EventEngine.configure do |config|
       config.delivery_adapter = :active_job
