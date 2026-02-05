@@ -2,6 +2,12 @@ require "test_helper"
 require "tempfile"
 
 class EventEngineSmokeTest < ActiveSupport::TestCase
+  self.use_transactional_tests = false
+
+  teardown do
+    EventEngine::OutboxEvent.delete_all
+  end
+
   class Cow
     attr_reader :weight
 
