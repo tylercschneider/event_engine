@@ -4,6 +4,7 @@ require "event_engine/engine"
 require "event_engine/outbox_publisher"
 require "event_engine/transports/in_memory_transport"
 require "event_engine/transports/kafka"
+require "event_engine/transports/null_transport"
 require "event_engine/kafka_producer"
 require "event_engine/configuration"
 require "event_engine/event_definition"
@@ -35,6 +36,7 @@ module EventEngine
 
     # Boot-time wiring: file → EventSchemaLoader → Registry → Helpers
     def boot_from_schema!(schema_path:, registry:)
+      configuration.validate!
       event_schema = EventSchemaLoader.load(schema_path)
 
       registry.reset!
