@@ -8,7 +8,7 @@ module EventEngine
 
     def initialize
       @delivery_adapter = :inline
-      @transport = nil
+      @transport = Transports::NullTransport.new
       @batch_size = 100
       @max_attempts = 5
       @retention_period = nil
@@ -22,7 +22,7 @@ module EventEngine
           "Invalid delivery_adapter: #{delivery_adapter.inspect}. Must be one of: #{VALID_DELIVERY_ADAPTERS.join(', ')}"
       end
 
-      if delivery_adapter == :active_job && transport.nil?
+      if delivery_adapter == :active_job && (transport.nil? || transport.is_a?(Transports::NullTransport))
         raise InvalidConfigurationError,
           "Transport must be configured when using :active_job delivery adapter. " \
           "Set config.transport in your EventEngine initializer."

@@ -6,6 +6,10 @@ module EventEngine
       @config = Configuration.new
     end
 
+    test "transport defaults to NullTransport" do
+      assert_instance_of EventEngine::Transports::NullTransport, @config.transport
+    end
+
     test "retention_period defaults to nil" do
       assert_nil @config.retention_period
     end
