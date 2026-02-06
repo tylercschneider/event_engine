@@ -2,7 +2,7 @@ module EventEngine
   class Configuration
     class InvalidConfigurationError < StandardError; end
 
-    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts, :retention_period, :dashboard_auth
+    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts, :retention_period, :dashboard_auth, :logger
 
     VALID_DELIVERY_ADAPTERS = %i[inline active_job].freeze
 
@@ -13,6 +13,7 @@ module EventEngine
       @max_attempts = 5
       @retention_period = nil
       @dashboard_auth = nil
+      @logger = defined?(Rails) ? Rails.logger : Logger.new($stdout)
     end
 
     def validate!
