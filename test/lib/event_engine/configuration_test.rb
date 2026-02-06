@@ -26,5 +26,29 @@ module EventEngine
 
       assert_equal auth_check, @config.dashboard_auth
     end
+
+    test "validate! is called during boot_from_schema!" do
+      EventEngine.configure do |c|
+        c.delivery_adapter = :active_job
+        c.transport = nil
+      end
+
+      schema_file = Tempfile.new("event_schema.rb")
+      schema_file.write("EventEngine::EventSchema.define {}\n")
+      schema_file.rewind
+
+      assert_raises(Configuration::InvalidConfigurationError) do
+        EventEngine.boot_from_schema!(
+          schema_path: schema_file.path,
+          registry: EventEngine::SchemaRegistry.new
+        )
+      end
+    ensure
+      schema_file&.unlink
+      EventEngine.configure do |c|
+        c.delivery_adapter = :inline
+        c.transport = nil
+      end
+    end
   end
 end

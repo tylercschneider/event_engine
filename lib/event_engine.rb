@@ -35,6 +35,7 @@ module EventEngine
 
     # Boot-time wiring: file → EventSchemaLoader → Registry → Helpers
     def boot_from_schema!(schema_path:, registry:)
+      configuration.validate!
       event_schema = EventSchemaLoader.load(schema_path)
 
       registry.reset!
