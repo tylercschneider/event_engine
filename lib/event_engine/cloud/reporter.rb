@@ -29,6 +29,8 @@ module EventEngine
           endpoint: config.cloud_endpoint
         )
         @running = true
+
+        logger.info("[EventEngine] Cloud Reporter started — reporting to #{config.cloud_endpoint}")
       end
 
       def shutdown
@@ -36,6 +38,8 @@ module EventEngine
 
         flush
         @running = false
+
+        logger.info("[EventEngine] Cloud Reporter stopped")
       end
 
       def running?
@@ -78,6 +82,10 @@ module EventEngine
 
         @batch.push(entry)
         flush if @batch.full?
+      end
+
+      def logger
+        EventEngine.configuration.logger
       end
     end
   end
