@@ -1,6 +1,12 @@
 module EventEngine
   module Cloud
+    # Converts +ActiveSupport::Notifications+ payloads into metadata-only
+    # entries for the Cloud API. Event payloads and PII are never included.
     class Serializer
+      # Serializes an event emission notification.
+      #
+      # @param notification_payload [Hash] the AS::Notifications payload
+      # @return [Hash] metadata entry with +:status+ set to +"emitted"+
       def self.serialize_emit(notification_payload)
         {
           event_id: notification_payload[:event_id],
@@ -12,6 +18,10 @@ module EventEngine
         }
       end
 
+      # Serializes a publish notification.
+      #
+      # @param notification_payload [Hash] the AS::Notifications payload
+      # @return [Hash] metadata entry with +:status+ set to +"published"+
       def self.serialize_publish(notification_payload)
         {
           event_id: notification_payload[:event_id],
@@ -22,6 +32,10 @@ module EventEngine
         }
       end
 
+      # Serializes a dead-letter notification. Includes error details.
+      #
+      # @param notification_payload [Hash] the AS::Notifications payload
+      # @return [Hash] metadata entry with +:status+ set to +"dead_lettered"+
       def self.serialize_dead_letter(notification_payload)
         {
           event_id: notification_payload[:event_id],
