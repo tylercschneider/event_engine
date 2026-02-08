@@ -34,20 +34,40 @@ Features that make EventEngine genuinely usable in real projects.
 
 Polish after code stabilizes.
 
-- [ ] **Add YARD docs to public API classes** — EventDefinition, Configuration, SchemaRegistry, transport interface, EventSchema, top-level EventEngine module. Include @example tags. Public API surface only. ([#48](https://github.com/tylercschneider/event_engine/issues/48))
+- [x] **Add YARD docs to public API classes** — Documented all 20 public API files: core module, Configuration, EventDefinition (+ Inputs, Payloads, Validation, Schemas concerns), SchemaRegistry, EventSchema, OutboxEvent, EventEmitter, EventBuilder, OutboxPublisher, all transports, and full Cloud module. Includes @param, @return, and @example tags. ([#48](https://github.com/tylercschneider/event_engine/issues/48))
 
-## Phase 5 — Observability Dashboard
+## Phase 5 — Configuration Safety
+
+Defensive defaults to prevent silent misconfiguration.
+
+- [x] **Default transport to NullTransport** — Transport defaults to `NullTransport` instead of nil. NullTransport logs a warning for each discarded event, making misconfiguration visible without crashing the host app. ([#54](https://github.com/tylercschneider/event_engine/pull/54))
+
+## Phase 6 — Observability Dashboard
 
 Capstone feature. Depends on instrumentation ([#44](https://github.com/tylercschneider/event_engine/issues/44)) and dead letter tooling ([#46](https://github.com/tylercschneider/event_engine/issues/46)).
 
 - [x] **Add basic observability dashboard** — Mountable at `/event_engine/dashboard`. Shows outbox stats, events list with pagination, dead letters with retry, payload inspection. Server-rendered HTML with `dashboard_auth` config for access control. ([#49](https://github.com/tylercschneider/event_engine/issues/49))
 
+## Phase 7 — Cloud Reporter
+
+Gem-side telemetry pipeline that sends lightweight event metadata to EventEngine Cloud (SaaS). Enables paid cloud dashboard without modifying existing event flow.
+
+- [x] **Add cloud configuration attributes** — `cloud_api_key`, `cloud_endpoint`, `cloud_environment`, `cloud_app_name`, `cloud_batch_size`, `cloud_flush_interval`. Reporting enabled when `cloud_api_key` is set. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add Cloud::Serializer** — Converts ActiveSupport::Notifications payloads to metadata-only entries. Never sends event payloads or user data. Three event types: emit, publish, dead_letter. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add Cloud::Batch** — Thread-safe accumulator with Mutex protection. Configurable max size with drain semantics. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add Cloud::ApiClient** — Fire-and-forget HTTP client using Net::HTTP (zero dependencies). Bearer auth, 5s timeout, all errors rescued. Sends batches and heartbeats. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add Cloud::Subscribers** — Subscribes to existing AS::Notifications hooks. Feeds serialized entries to the Reporter. Clean unsubscribe on shutdown. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add Cloud::Reporter** — Singleton lifecycle manager: start, collect, batch, flush, shutdown. Auto-flushes when batch is full. Boot/shutdown logging. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Engine boot integration** — Reporter auto-starts at Rails boot when `cloud_api_key` is configured. ([#56](https://github.com/tylercschneider/event_engine/pull/56))
+- [x] **Add README and CHANGELOG documentation** — Cloud Reporter setup guide, configuration reference, failure isolation notes. ([#57](https://github.com/tylercschneider/event_engine/pull/57))
+
 ---
 
 ## Related Projects
 
-- **Event Analytics Dashboard** (separate repo) — Handles event ingestion from sources like ClickHouse, provides custom dashboards and widgets. Part of the same ecosystem but intentionally decoupled.
-- **Demo App** (planned) — Standalone Rails app demonstrating data flow through the full EventEngine pipeline. Built after Phase 1-3 are complete.
+- **EventEngine Cloud** (separate project) — Paid SaaS dashboard that receives telemetry from the Cloud Reporter. Provides cross-app event analytics, throughput monitoring, dead letter alerts, and schema drift detection. See `docs/cloud_saas_plan.md` for the build plan.
+- **Promo Site** — Marketing site for EventEngine with interactive demo. ([#55](https://github.com/tylercschneider/event_engine/pull/55))
+- **Demo App** (planned) — Standalone Rails app demonstrating data flow through the full EventEngine pipeline.
 
 ## Design Principles
 
