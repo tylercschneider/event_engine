@@ -2,7 +2,8 @@ module EventEngine
   class Configuration
     class InvalidConfigurationError < StandardError; end
 
-    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts, :retention_period, :dashboard_auth, :logger
+    attr_accessor :delivery_adapter, :transport, :batch_size, :max_attempts, :retention_period, :dashboard_auth, :logger,
+                  :cloud_api_key, :cloud_endpoint, :cloud_environment, :cloud_app_name, :cloud_batch_size, :cloud_flush_interval
 
     VALID_DELIVERY_ADAPTERS = %i[inline active_job].freeze
 
@@ -14,6 +15,16 @@ module EventEngine
       @retention_period = nil
       @dashboard_auth = nil
       @logger = defined?(Rails) ? Rails.logger : Logger.new($stdout)
+      @cloud_api_key = nil
+      @cloud_endpoint = "https://api.eventengine.dev/v1/ingest"
+      @cloud_environment = nil
+      @cloud_app_name = nil
+      @cloud_batch_size = 50
+      @cloud_flush_interval = 10
+    end
+
+    def cloud_enabled?
+      cloud_api_key.present?
     end
 
     def validate!
