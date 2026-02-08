@@ -4,18 +4,32 @@ require "uri"
 
 module EventEngine
   module Cloud
+    # HTTP client for the EventEngine Cloud ingestion API.
+    # Uses +Net::HTTP+ (stdlib) with a 5-second timeout. All errors are
+    # rescued and logged — network failures never propagate to the host app.
     class ApiClient
+      # @return [Integer] HTTP timeout in seconds
       TIMEOUT = 5
 
+      # @param api_key [String] the Cloud API key
+      # @param endpoint [String] the Cloud API base URL
       def initialize(api_key:, endpoint:)
         @api_key = api_key
         @endpoint = endpoint
       end
 
+      # Posts a batch of event entries to the Cloud API.
+      #
+      # @param entries [Array<Hash>] serialized event metadata entries
+      # @return [Boolean] true on success, false on failure
       def send_batch(entries)
         post("/events", { entries: entries })
       end
 
+      # Posts a heartbeat with app and schema info to the Cloud API.
+      #
+      # @param heartbeat [Hash] heartbeat data
+      # @return [Boolean] true on success, false on failure
       def send_heartbeat(heartbeat)
         post("/heartbeat", heartbeat)
       end

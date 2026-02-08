@@ -1,7 +1,13 @@
 module EventEngine
   module Cloud
+    # Subscribes to +ActiveSupport::Notifications+ and feeds serialized
+    # event metadata to the {Reporter}.
     class Subscribers
       class << self
+        # Subscribes to all EventEngine notifications.
+        #
+        # @param reporter [Reporter] the reporter to send entries to
+        # @return [void]
         def subscribe!(reporter:)
           @subscriptions = []
           @reporter = reporter
@@ -22,6 +28,9 @@ module EventEngine
           end
         end
 
+        # Removes all notification subscriptions.
+        #
+        # @return [void]
         def unsubscribe!
           return unless @subscriptions
 

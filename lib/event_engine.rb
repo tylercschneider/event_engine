@@ -28,18 +28,54 @@ require "event_engine/cloud/api_client"
 require "event_engine/cloud/subscribers"
 require "event_engine/cloud/reporter"
 
+# EventEngine is a Rails engine providing a schema-first event pipeline.
+#
+# Events are defined via a Ruby DSL, compiled into a canonical schema file,
+# persisted to an outbox table, and delivered through pluggable transports.
+#
+# At boot, helper methods are installed on this module for each registered
+# event (e.g. +EventEngine.cow_fed(cow: cow)+).
+#
+# @example Configure and emit an event
+#   EventEngine.configure do |config|
+#     config.transport = EventEngine::Transports::InMemoryTransport.new
+#   end
+#
+#   EventEngine.cow_fed(cow: cow, occurred_at: Time.current)
+#
+# @example Enable Cloud Reporter
+#   EventEngine.configure do |config|
+#     config.cloud_api_key = ENV["EVENT_ENGINE_CLOUD_KEY"]
+#   end
 module EventEngine
   mattr_accessor :_installed_event_helpers, default: Set.new
   class << self
+    # Returns the current configuration instance.
+    #
+    # @return [Configuration]
     def configuration
       @configuration ||= Configuration.new
     end
 
+    # Yields the configuration for modification.
+    #
+    # @yieldparam config [Configuration] the configuration instance
+    # @example
+    #   EventEngine.configure do |config|
+    #     config.delivery_adapter = :active_job
+    #     config.transport = MyTransport.new
+    #   end
     def configure
       yield(configuration)
     end
 
-    # Boot-time wiring: file → EventSchemaLoader → Registry → Helpers
+    # Loads a schema file, populates the registry, and installs helper methods.
+    # Called automatically by the engine at Rails boot.
+    #
+    # @param schema_path [String, Pathname] path to the compiled schema file
+    # @param registry [SchemaRegistry] the registry to populate
+    # @return [EventSchema] the loaded schema
+    # @raise [Configuration::InvalidConfigurationError] if configuration is invalid
     def boot_from_schema!(schema_path:, registry:)
       configuration.validate!
       event_schema = EventSchemaLoader.load(schema_path)
@@ -52,6 +88,10 @@ module EventEngine
       event_schema
     end
 
+    # Installs singleton helper methods on the EventEngine module for each
+    # event in the registry. Previous helpers are removed first.
+    #
+    # @param registry [SchemaRegistry] the loaded registry
     def install_helpers(registry:)
       _installed_event_helpers.each do |method_name|
         singleton_class.remove_method(method_name) if singleton_class.method_defined?(method_name)
@@ -94,6 +134,10 @@ module EventEngine
       end
     end
 
+    # Compiles event definitions from source into a registry.
+    # Used by rake tasks for schema drift detection.
+    #
+    # @return [SchemaRegistry]
     def compiled_schema_registry
       DefinitionLoader.ensure_loaded!
       definitions = EventDefinition.descendants
@@ -103,6 +147,10 @@ module EventEngine
       registry
     end
 
+    # Loads the committed schema file into a registry.
+    # Used by rake tasks for schema drift detection.
+    #
+    # @return [SchemaRegistry]
     def file_schema_registry
       loaded = EventSchemaLoader.load(Rails.root.join("db/event_schema.rb"))
       registry = SchemaRegistry.new

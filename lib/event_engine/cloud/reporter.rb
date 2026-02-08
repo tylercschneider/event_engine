@@ -1,11 +1,22 @@
 module EventEngine
   module Cloud
+    # Singleton that collects event metadata and sends it to EventEngine Cloud.
+    # Manages the full lifecycle: start, collect via {Subscribers}, batch, flush, shutdown.
+    #
+    # Activated automatically at boot when +cloud_api_key+ is configured.
+    # All errors are rescued — reporter failures never affect the host application.
     class Reporter
       class << self
+        # Returns the singleton instance.
+        #
+        # @return [Reporter]
         def instance
           @instance ||= new
         end
 
+        # Resets the singleton, discarding state without flushing.
+        #
+        # @return [void]
         def reset!
           if @instance
             @instance.instance_variable_set(:@running, false)
@@ -21,6 +32,9 @@ module EventEngine
         @mutex = Mutex.new
       end
 
+      # Initializes the batch and API client, begins accepting entries.
+      #
+      # @return [void]
       def start
         config = EventEngine.configuration
         @batch = Batch.new(max_size: config.cloud_batch_size)
@@ -33,6 +47,9 @@ module EventEngine
         logger.info("[EventEngine] Cloud Reporter started — reporting to #{config.cloud_endpoint}")
       end
 
+      # Flushes remaining entries and stops the reporter.
+      #
+      # @return [void]
       def shutdown
         return unless @running
 
@@ -42,22 +59,38 @@ module EventEngine
         logger.info("[EventEngine] Cloud Reporter stopped")
       end
 
+      # Whether the reporter is currently active.
+      #
+      # @return [Boolean]
       def running?
         @running
       end
 
+      # Records an emitted event entry.
+      # @param entry [Hash] serialized event metadata
+      # @return [void]
       def track_emit(entry)
         push(entry)
       end
 
+      # Records a published event entry.
+      # @param entry [Hash] serialized event metadata
+      # @return [void]
       def track_publish(entry)
         push(entry)
       end
 
+      # Records a dead-lettered event entry.
+      # @param entry [Hash] serialized event metadata
+      # @return [void]
       def track_dead_letter(entry)
         push(entry)
       end
 
+      # Drains the batch and sends entries to the Cloud API.
+      # Does nothing if the batch is empty. Errors are logged, never raised.
+      #
+      # @return [void]
       def flush
         return unless @batch
 
@@ -71,6 +104,9 @@ module EventEngine
         )
       end
 
+      # Returns the number of entries currently queued.
+      #
+      # @return [Integer]
       def batch_size
         @batch&.size || 0
       end
