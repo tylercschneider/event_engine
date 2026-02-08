@@ -121,6 +121,32 @@ module EventEngine
 
         assert_equal 1, reporter.batch_size
       end
+
+      test "start logs reporter started message" do
+        log = StringIO.new
+        EventEngine.configuration.logger = Logger.new(log)
+
+        reporter = Reporter.instance
+        reporter.start
+
+        assert_match(/Cloud Reporter started/, log.string)
+        assert_match(/api\.eventengine\.dev/, log.string)
+      ensure
+        EventEngine.configuration.logger = Logger.new($stdout)
+      end
+
+      test "shutdown logs reporter stopped message" do
+        log = StringIO.new
+        EventEngine.configuration.logger = Logger.new(log)
+
+        reporter = Reporter.instance
+        reporter.start
+        reporter.shutdown
+
+        assert_match(/Cloud Reporter stopped/, log.string)
+      ensure
+        EventEngine.configuration.logger = Logger.new($stdout)
+      end
     end
   end
 end

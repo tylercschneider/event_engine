@@ -402,6 +402,59 @@ own authorization logic based on your app's requirements.
 
 ---
 
+## EventEngine Cloud
+
+EventEngine includes an optional Cloud Reporter that sends lightweight event
+metadata to [EventEngine Cloud](https://eventengine.dev) for real-time
+observability, alerting, and schema intelligence.
+
+### What gets reported
+
+Only metadata is sent — **never** event payloads or business data:
+- Event name, type, version, and status (emitted / published / dead-lettered)
+- Timestamps and publish latency
+- Attempt counts and error classes (for dead letters)
+- Schema fingerprints (via periodic heartbeat)
+
+### Setup
+
+Add your Cloud API key to the initializer:
+
+```ruby
+EventEngine.configure do |config|
+  config.cloud_api_key = ENV["EVENT_ENGINE_CLOUD_KEY"]
+end
+```
+
+That's it. The reporter starts automatically at boot and you'll see:
+
+```
+[EventEngine] Cloud Reporter started — reporting to https://api.eventengine.dev/v1/ingest
+```
+
+When no API key is configured, the reporter does nothing — zero overhead.
+
+### Configuration options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `cloud_api_key` | `nil` | Your Cloud API key. Reporter is inactive when nil. |
+| `cloud_endpoint` | `https://api.eventengine.dev/v1/ingest` | Cloud API endpoint |
+| `cloud_batch_size` | `50` | Max entries per batch before auto-flush |
+| `cloud_flush_interval` | `10` | Seconds between scheduled flushes |
+| `cloud_environment` | `nil` | Environment label (defaults to `Rails.env` in SaaS) |
+| `cloud_app_name` | `nil` | App name label (defaults to app module name in SaaS) |
+
+### Failure isolation
+
+The reporter is designed to be invisible to your application:
+- All network calls are fire-and-forget with a 5-second timeout
+- Errors are logged but never raised — reporter failures cannot affect your app
+- Uses `Net::HTTP` from stdlib — no additional gem dependencies
+- Hooks into existing `ActiveSupport::Notifications` — no monkey-patching
+
+---
+
 ## Troubleshooting & common errors
 
 ### Missing schema in production
