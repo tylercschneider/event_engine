@@ -147,6 +147,19 @@ module EventEngine
       ensure
         EventEngine.configuration.logger = Logger.new($stdout)
       end
+
+      test "start spawns a timer thread and shutdown stops it" do
+        reporter = Reporter.instance
+        reporter.start
+
+        timer = reporter.instance_variable_get(:@timer_thread)
+        assert timer, "Expected @timer_thread to be set"
+        assert timer.alive?, "Expected timer thread to be alive after start"
+
+        reporter.shutdown
+
+        refute timer.alive?, "Expected timer thread to be dead after shutdown"
+      end
     end
   end
 end

@@ -20,6 +20,8 @@ module EventEngine
         def reset!
           if @instance
             @instance.instance_variable_set(:@running, false)
+            timer = @instance.instance_variable_get(:@timer_thread)
+            timer&.kill
             @instance = nil
           end
         end
@@ -30,6 +32,7 @@ module EventEngine
         @batch = nil
         @client = nil
         @mutex = Mutex.new
+        @timer_thread = nil
       end
 
       # Initializes the batch and API client, begins accepting entries.
@@ -43,6 +46,8 @@ module EventEngine
           endpoint: config.cloud_endpoint
         )
         @running = true
+        @flush_interval = config.cloud_flush_interval
+        start_timer
 
         logger.info("[EventEngine] Cloud Reporter started — reporting to #{config.cloud_endpoint}")
       end
@@ -53,8 +58,9 @@ module EventEngine
       def shutdown
         return unless @running
 
-        flush
         @running = false
+        stop_timer
+        flush
 
         logger.info("[EventEngine] Cloud Reporter stopped")
       end
@@ -112,6 +118,25 @@ module EventEngine
       end
 
       private
+
+      def start_timer
+        @timer_thread = Thread.new do
+          while @running
+            sleep(@flush_interval)
+            flush if @running
+          end
+        rescue StandardError => e
+          logger.error("[EventEngine::Cloud] Timer thread error: #{e.class} - #{e.message}")
+        end
+      end
+
+      def stop_timer
+        return unless @timer_thread
+
+        @timer_thread.join([@flush_interval * 2, 5].min)
+        @timer_thread.kill if @timer_thread.alive?
+        @timer_thread = nil
+      end
 
       def push(entry)
         return unless @running && @batch
