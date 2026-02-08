@@ -160,6 +160,19 @@ module EventEngine
 
         refute timer.alive?, "Expected timer thread to be dead after shutdown"
       end
+
+      test "timer periodically flushes entries" do
+        EventEngine.configuration.cloud_flush_interval = 0.1
+        Reporter.reset!
+        reporter = Reporter.instance
+        reporter.start
+
+        reporter.track_emit({ event_id: 1, event_name: :test, status: "emitted" })
+        sleep(0.25)
+
+        assert_requested(:post, "https://api.eventengine.dev/v1/ingest/events")
+        assert_equal 0, reporter.batch_size
+      end
     end
   end
 end
