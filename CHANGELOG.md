@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Cloud Reporter** — Optional module that sends event metadata to EventEngine Cloud for observability. Activated by setting `cloud_api_key` in configuration. Zero impact when unconfigured.
+  - `Cloud::Serializer` — Converts event notifications to metadata-only entries (never sends payloads)
+  - `Cloud::Batch` — Thread-safe entry accumulator with configurable max size
+  - `Cloud::ApiClient` — Net::HTTP client with 5s timeout, fire-and-forget error handling
+  - `Cloud::Subscribers` — Hooks into existing `ActiveSupport::Notifications` for event tracking
+  - `Cloud::Reporter` — Singleton managing the collect/batch/flush lifecycle
+  - Engine boot integration — Auto-starts reporter when `cloud_api_key` is present
+- Cloud configuration options: `cloud_api_key`, `cloud_endpoint`, `cloud_batch_size`, `cloud_flush_interval`, `cloud_environment`, `cloud_app_name`
+- Boot logging — Reporter logs start/stop messages for operator visibility
+- `NullTransport` as default transport (logs warnings for discarded events instead of nil errors)
+
 ## [0.1.0] - 2025-12-16
 
 ### Added
