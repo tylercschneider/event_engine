@@ -123,10 +123,12 @@ module EventEngine
         @timer_thread = Thread.new do
           while @running
             sleep(@flush_interval)
-            flush if @running
+            begin
+              flush if @running
+            rescue StandardError => e
+              logger.error("[EventEngine::Cloud] Timer thread error: #{e.class} - #{e.message}")
+            end
           end
-        rescue StandardError => e
-          logger.error("[EventEngine::Cloud] Timer thread error: #{e.class} - #{e.message}")
         end
       end
 
