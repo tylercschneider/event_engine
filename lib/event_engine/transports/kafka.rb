@@ -1,10 +1,21 @@
 module EventEngine
   module Transports
+    # Publishes events to Kafka topics via an injected producer.
+    # Topics are named +events.{event_name}+ by default.
+    #
+    # @example
+    #   producer = EventEngine::KafkaProducer.new(client: kafka_client)
+    #   transport = EventEngine::Transports::Kafka.new(producer: producer)
     class Kafka
+      # @param producer [KafkaProducer] a producer that responds to +#publish(topic, payload)+
       def initialize(producer:)
         @producer = producer
       end
 
+      # Publishes the event to a Kafka topic.
+      #
+      # @param event [OutboxEvent]
+      # @return [Object] the producer's return value
       def publish(event)
         @producer.publish(topic_for(event), payload_for(event))
       end

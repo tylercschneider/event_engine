@@ -1,5 +1,22 @@
 module EventEngine
+  # Orchestrates event emission: validates inputs, builds the payload,
+  # writes to the outbox, fires notifications, and enqueues delivery.
+  #
+  # @example
+  #   EventEmitter.emit(event_name: :cow_fed, data: { cow: cow }, registry: registry)
   class EventEmitter
+    # Emits an event through the full pipeline.
+    #
+    # @param event_name [Symbol] the event to emit
+    # @param data [Hash] input data keyed by input name
+    # @param registry [SchemaRegistry] the loaded schema registry
+    # @param version [Integer, nil] specific schema version (nil for latest)
+    # @param occurred_at [Time, nil] when the event occurred (defaults to now)
+    # @param metadata [Hash, nil] optional contextual metadata
+    # @param idempotency_key [String, nil] deduplication key (defaults to UUID)
+    # @return [OutboxEvent] the persisted outbox event
+    # @raise [SchemaRegistry::RegistryFrozenError] if registry is not loaded
+    # @raise [SchemaRegistry::UnknownEventError] if event name is not registered
     def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil, idempotency_key: nil)
       unless registry.loaded?
         raise SchemaRegistry::RegistryFrozenError, "EventRegistry must be loaded before emitting events"
