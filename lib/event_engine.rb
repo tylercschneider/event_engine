@@ -24,6 +24,7 @@ require "event_engine/railtie"
 require "event_engine/definition_loader"
 require "event_engine/cloud/serializer"
 require "event_engine/cloud/batch"
+require "event_engine/cloud/api_client"
 
 module EventEngine
   mattr_accessor :_installed_event_helpers, default: Set.new

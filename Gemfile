@@ -13,6 +13,7 @@ group :development, :test do
   gem "minitest-reporters"
   gem "minitest-focus"
   gem "diffy"
+  gem "webmock"
 end
 
 
