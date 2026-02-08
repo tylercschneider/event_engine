@@ -147,6 +147,53 @@ module EventEngine
       ensure
         EventEngine.configuration.logger = Logger.new($stdout)
       end
+
+      test "start spawns a timer thread and shutdown stops it" do
+        reporter = Reporter.instance
+        reporter.start
+
+        timer = reporter.instance_variable_get(:@timer_thread)
+        assert timer, "Expected @timer_thread to be set"
+        assert timer.alive?, "Expected timer thread to be alive after start"
+
+        reporter.shutdown
+
+        refute timer.alive?, "Expected timer thread to be dead after shutdown"
+      end
+
+      test "timer periodically flushes entries" do
+        EventEngine.configuration.cloud_flush_interval = 0.1
+        Reporter.reset!
+        reporter = Reporter.instance
+        reporter.start
+
+        reporter.track_emit({ event_id: 1, event_name: :test, status: "emitted" })
+        sleep(0.25)
+
+        assert_requested(:post, "https://api.eventengine.dev/v1/ingest/events")
+        assert_equal 0, reporter.batch_size
+      end
+
+      test "timer rescues errors during flush and keeps running" do
+        stub_request(:post, "https://api.eventengine.dev/v1/ingest/events")
+          .to_raise(StandardError.new("connection refused"))
+
+        EventEngine.configuration.cloud_flush_interval = 0.1
+        Reporter.reset!
+        reporter = Reporter.instance
+        reporter.start
+
+        reporter.track_emit({ event_id: 1, event_name: :test, status: "emitted" })
+        sleep(0.25)
+
+        assert reporter.running?, "Expected reporter to still be running after flush error"
+
+        timer = reporter.instance_variable_get(:@timer_thread)
+        assert timer.alive?, "Expected timer thread to still be alive after flush error"
+
+        reporter.track_emit({ event_id: 2, event_name: :test, status: "emitted" })
+        assert_operator reporter.batch_size, :>=, 1, "Expected reporter to still accept entries"
+      end
     end
   end
 end
