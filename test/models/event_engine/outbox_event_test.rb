@@ -231,5 +231,24 @@ module EventEngine
       assert_nil event.dead_lettered_at
       assert_not event.dead_lettered?
     end
+
+    test "retry! clears error context" do
+      event = OutboxEvent.create!(
+        event_type: "OrderCreated",
+        event_name: "order.created",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { filler: "a" },
+        attempts: 5,
+        dead_lettered_at: Time.current,
+        last_error_message: "connection reset",
+        last_error_class: "RuntimeError"
+      )
+
+      event.retry!
+
+      assert_nil event.last_error_message
+      assert_nil event.last_error_class
+    end
   end
 end

@@ -19,6 +19,20 @@ module EventEngine
         assert_response :forbidden
       end
 
+      test "logs a warning when dashboard_auth is nil" do
+        EventEngine.configuration.dashboard_auth = nil
+
+        log_output = StringIO.new
+        original_logger = EventEngine.configuration.logger
+        EventEngine.configuration.logger = Logger.new(log_output)
+
+        get event_engine.dashboard_root_path
+
+        EventEngine.configuration.logger = original_logger
+
+        assert_match(/dashboard_auth/, log_output.string)
+      end
+
       test "returns 403 when dashboard_auth returns false" do
         EventEngine.configuration.dashboard_auth = ->(_controller) { false }
 
