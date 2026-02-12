@@ -96,7 +96,7 @@ module EventEngine
     #
     # @return [void]
     def retry!
-      update!(attempts: 0, dead_lettered_at: nil)
+      update!(attempts: 0, dead_lettered_at: nil, last_error_message: nil, last_error_class: nil)
     end
 
     # Increments the attempt counter.
