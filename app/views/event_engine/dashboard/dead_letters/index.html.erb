@@ -17,6 +17,7 @@
         <th>ID</th>
         <th>Event Name</th>
         <th>Attempts</th>
+        <th>Error</th>
         <th>Dead Lettered At</th>
         <th></th>
       </tr>
@@ -27,6 +28,7 @@
           <td><%= event.id %></td>
           <td><%= link_to event.event_name, dashboard_event_path(event) %></td>
           <td><%= event.attempts %></td>
+          <td><%= event.last_error_class %>: <%= event.last_error_message&.truncate(80) %></td>
           <td><%= event.dead_lettered_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
           <td>
             <%= button_to "Retry", retry_dashboard_dead_letter_path(event), method: :post, class: "btn-retry" %>

@@ -48,4 +48,15 @@
   <pre class="metadata"><%= JSON.pretty_generate(@event.metadata) %></pre>
 <% end %>
 
+<% if @event.last_error_message.present? %>
+  <h2>Last Error</h2>
+  <dl>
+    <dt>Error Class</dt>
+    <dd><%= @event.last_error_class %></dd>
+
+    <dt>Error Message</dt>
+    <dd><pre><%= @event.last_error_message %></pre></dd>
+  </dl>
+<% end %>
+
 <p><%= link_to "Back to Events", dashboard_events_path %></p>
