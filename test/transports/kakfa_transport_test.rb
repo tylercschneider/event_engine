@@ -43,6 +43,30 @@ class KafkaTransportTest < ActiveSupport::TestCase
     assert_equal "unique-key-123", published[:payload][:idempotency_key]
   end
 
+  def test_includes_aggregate_fields_in_payload
+    event = EventEngine::OutboxEvent.new(
+      event_name: "order.created",
+      event_type: "domain",
+      event_version: 1,
+      payload: { total: 99 },
+      metadata: {},
+      occurred_at: Time.current,
+      aggregate_type: "Order",
+      aggregate_id: "order-42",
+      aggregate_version: 3
+    )
+
+    producer = FakeKafkaProducer.new
+    transport = EventEngine::Transports::Kafka.new(producer: producer)
+
+    transport.publish(event)
+
+    published = producer.published.first
+    assert_equal "Order", published[:payload][:aggregate_type]
+    assert_equal "order-42", published[:payload][:aggregate_id]
+    assert_equal 3, published[:payload][:aggregate_version]
+  end
+
   private
 
   class FakeKafkaProducer
