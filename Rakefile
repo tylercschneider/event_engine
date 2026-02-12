@@ -11,4 +11,5 @@ Rake::TestTask.new(:test) do |t|
   t.pattern = "test/**/*_test.rb"
 end
 
+task test: "app:db:test:prepare"
 task default: :test
