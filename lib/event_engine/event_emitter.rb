@@ -17,7 +17,8 @@ module EventEngine
     # @return [OutboxEvent] the persisted outbox event
     # @raise [SchemaRegistry::RegistryFrozenError] if registry is not loaded
     # @raise [SchemaRegistry::UnknownEventError] if event name is not registered
-    def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil, idempotency_key: nil)
+    def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil, idempotency_key: nil,
+                   aggregate_type: nil, aggregate_id: nil, aggregate_version: nil)
       unless registry.loaded?
         raise SchemaRegistry::RegistryFrozenError, "EventRegistry must be loaded before emitting events"
       end
@@ -28,6 +29,9 @@ module EventEngine
       attrs[:occurred_at] = occurred_at || Time.current
       attrs[:metadata] = metadata
       attrs[:idempotency_key] = idempotency_key || SecureRandom.uuid
+      attrs[:aggregate_type] = aggregate_type
+      attrs[:aggregate_id] = aggregate_id
+      attrs[:aggregate_version] = aggregate_version
 
       event = OutboxWriter.write(attrs)
 
@@ -35,7 +39,10 @@ module EventEngine
         event_name: event.event_name,
         event_version: event.event_version,
         event_id: event.id,
-        idempotency_key: event.idempotency_key
+        idempotency_key: event.idempotency_key,
+        aggregate_type: event.aggregate_type,
+        aggregate_id: event.aggregate_id,
+        aggregate_version: event.aggregate_version
       })
 
       Delivery.enqueue do
