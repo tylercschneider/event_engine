@@ -178,6 +178,53 @@ module EventEngine
       assert_nil e3.reload.published_at
     end
 
+    test "persists error context on failure" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 }
+      )
+
+      transport = Minitest::Mock.new
+      transport.expect :publish, nil do |_|
+        raise ArgumentError, "invalid payload format"
+      end
+
+      EventEngine::OutboxPublisher.new(transport: transport).call
+
+      event.reload
+      assert_equal "invalid payload format", event.last_error_message
+      assert_equal "ArgumentError", event.last_error_class
+    end
+
+    test "dead-lettered event retains error context" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 },
+        attempts: 4
+      )
+
+      transport = Minitest::Mock.new
+      transport.expect :publish, nil do |_|
+        raise RuntimeError, "connection reset"
+      end
+
+      EventEngine::OutboxPublisher.new(
+        transport: transport,
+        max_attempts: 5
+      ).call
+
+      event.reload
+      assert event.dead_lettered?
+      assert_equal "connection reset", event.last_error_message
+      assert_equal "RuntimeError", event.last_error_class
+    end
+
     test "failure of one event does not prevent publishing other events in the same batch" do
       failing = EventEngine::OutboxEvent.create!(
         event_type: "A",

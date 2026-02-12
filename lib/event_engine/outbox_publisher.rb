@@ -56,6 +56,10 @@ module EventEngine
 
     def handle_failure(event, error)
       event.increment!(:attempts)
+      event.update!(
+        last_error_message: error.message.truncate(10_000),
+        last_error_class: error.class.name
+      )
 
       return unless @max_attempts
       return unless event.attempts >= @max_attempts
