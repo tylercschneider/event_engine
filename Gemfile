@@ -10,6 +10,7 @@ group :development, :test do
   gem "sprockets-rails"
   gem "pry"
   gem "pry-byebug"
+  gem "minitest"
   gem "minitest-reporters"
   gem "minitest-focus"
   gem "diffy"
