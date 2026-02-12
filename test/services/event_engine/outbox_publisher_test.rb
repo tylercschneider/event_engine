@@ -6,9 +6,11 @@ module EventEngine
     test "publisher does nothing when there are no unpublished events" do
       transport = Minitest::Mock.new
 
-      EventEngine::OutboxPublisher.new(transport: transport).call
+      publisher = EventEngine::OutboxPublisher.new(transport: transport)
+      publisher.call
 
       transport.verify
+      assert_equal 0, EventEngine::OutboxEvent.where(published_at: nil).count
     end
 
     test "publishes unpublished events and marks them published" do

@@ -10,6 +10,8 @@ Gem::Specification.new do |spec|
   spec.description = "A Rails engine providing schema-first event definitions, outbox pattern persistence, and pluggable transport adapters. Define events with a Ruby DSL, compile to a canonical schema, and publish through Kafka or custom transports."
   spec.license     = "MIT"
 
+  spec.required_ruby_version = ">= 3.2.0"
+
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
@@ -19,8 +21,8 @@ Gem::Specification.new do |spec|
   spec.metadata["documentation_uri"] = "https://github.com/tylercschneider/event_engine#readme"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md"]
   end
 
-  spec.add_dependency "rails", ">= 7.1.6"
+  spec.add_dependency "rails", ">= 7.1.6", "< 9"
 end
