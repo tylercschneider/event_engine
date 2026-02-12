@@ -10,24 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_27_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_12_000001) do
   create_table "event_engine_outbox_events", force: :cascade do |t|
-    t.string "event_name"
+    t.integer "attempts", default: 0, null: false
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "dead_lettered_at"
+    t.string "event_name", null: false
     t.string "event_type", null: false
+    t.integer "event_version", null: false
+    t.string "idempotency_key"
+    t.json "metadata"
+    t.datetime "occurred_at", null: false
     t.json "payload", null: false
     t.datetime "published_at"
-    t.string "idempotency_key"
-    t.integer "attempts", default: 0, null: false
-    t.datetime "dead_lettered_at"
-    t.integer "event_version", null: false
-    t.datetime "occurred_at", null: false
-    t.json "metadata"
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_event_engine_outbox_events_on_created_at"
     t.index ["dead_lettered_at"], name: "index_event_engine_outbox_events_on_dead_lettered_at"
     t.index ["idempotency_key"], name: "index_event_engine_outbox_events_on_idempotency_key", unique: true
     t.index ["published_at", "dead_lettered_at", "created_at"], name: "idx_outbox_events_publishable"
     t.index ["published_at"], name: "index_event_engine_outbox_events_on_published_at"
   end
-
 end

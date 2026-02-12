@@ -108,6 +108,11 @@ module EventEngine
           "Set config.transport in your EventEngine initializer."
       end
 
+      if transport && !transport.respond_to?(:publish)
+        raise InvalidConfigurationError,
+          "Transport must respond to #publish"
+      end
+
       unless batch_size.is_a?(Integer) && batch_size > 0
         raise InvalidConfigurationError,
           "batch_size must be a positive integer, got: #{batch_size.inspect}"

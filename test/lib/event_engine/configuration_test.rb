@@ -1,4 +1,5 @@
 require "test_helper"
+require "minitest/mock"
 
 module EventEngine
   class ConfigurationTest < ActiveSupport::TestCase
@@ -62,6 +63,30 @@ module EventEngine
     test "cloud_enabled? is true when api key is set" do
       @config.cloud_api_key = "ee_test_abc123"
       assert_equal true, @config.cloud_enabled?
+    end
+
+    test "validate! raises when transport does not respond to publish" do
+      @config.transport = Object.new
+
+      error = assert_raises(Configuration::InvalidConfigurationError) do
+        @config.validate!
+      end
+
+      assert_match(/Transport must respond to #publish/, error.message)
+    end
+
+    test "validate! accepts a transport that responds to publish" do
+      transport = Object.new
+      transport.define_singleton_method(:publish) { |_event| }
+      @config.transport = transport
+
+      assert_nothing_raised { @config.validate! }
+    end
+
+    test "validate! accepts nil transport" do
+      @config.transport = nil
+
+      assert_nothing_raised { @config.validate! }
     end
 
     test "validate! is called during boot_from_schema!" do

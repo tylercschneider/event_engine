@@ -26,6 +26,9 @@ module EventEngine
   class OutboxEvent < ApplicationRecord
     self.table_name = "event_engine_outbox_events"
 
+    attr_readonly :event_name, :event_type, :event_version, :payload,
+                  :metadata, :occurred_at, :idempotency_key
+
     validates :event_name, presence: true
     validates :event_type, presence: true
     validates :payload, presence: true
