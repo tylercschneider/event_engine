@@ -13,6 +13,9 @@ module EventEngine
           event_name: notification_payload[:event_name],
           event_version: notification_payload[:event_version],
           idempotency_key: notification_payload[:idempotency_key],
+          aggregate_type: notification_payload[:aggregate_type],
+          aggregate_id: notification_payload[:aggregate_id],
+          aggregate_version: notification_payload[:aggregate_version],
           status: "emitted",
           timestamp: Time.current.iso8601
         }

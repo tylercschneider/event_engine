@@ -34,7 +34,10 @@ module EventEngine
           idempotency_key: event.idempotency_key,
           payload: event.payload,
           metadata: event.metadata,
-          occurred_at: event.occurred_at
+          occurred_at: event.occurred_at,
+          aggregate_type: event.aggregate_type,
+          aggregate_id: event.aggregate_id,
+          aggregate_version: event.aggregate_version
         }
       end
     end

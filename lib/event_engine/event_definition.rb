@@ -35,6 +35,9 @@ module EventEngine
       idempotency_key
       attempts
       dead_lettered_at
+      aggregate_type
+      aggregate_id
+      aggregate_version
     ].freeze
 
     include Inputs

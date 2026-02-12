@@ -51,6 +51,21 @@ module EventEngine
       assert_equal({ "weight" => 500 }, event.payload)
     end
 
+    test "helper passes aggregate fields through to emitter" do
+      cow = OpenStruct.new(weight: 500)
+
+      event = EventEngine.cow_fed(
+        cow: cow,
+        aggregate_type: "Cow",
+        aggregate_id: "cow-7",
+        aggregate_version: 2
+      )
+
+      assert_equal "Cow", event.aggregate_type
+      assert_equal "cow-7", event.aggregate_id
+      assert_equal 2, event.aggregate_version
+    end
+
     teardown do
       restore_event_engine_helpers(@helpers_snapshot)
     end

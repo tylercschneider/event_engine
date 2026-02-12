@@ -78,6 +78,13 @@ module EventEngine
     #   @return [ActiveRecord::Relation]
     scope :cleanable, -> { where.not(published_at: nil).where(dead_lettered_at: nil) }
 
+    scope :for_aggregate, ->(type, id) { where(aggregate_type: type, aggregate_id: id).ordered }
+
+    def self.next_aggregate_version(type, id)
+      max = where(aggregate_type: type, aggregate_id: id).maximum(:aggregate_version)
+      (max || 0) + 1
+    end
+
     # Marks the event as dead-lettered.
     #
     # @return [void]
