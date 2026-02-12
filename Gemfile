@@ -10,6 +10,7 @@ group :development, :test do
   gem "sprockets-rails"
   gem "pry"
   gem "pry-byebug"
+  gem "minitest", "~> 5.0"  # pin to 5.x; minitest 6 removed minitest/mock
   gem "minitest-reporters"
   gem "minitest-focus"
   gem "diffy"
