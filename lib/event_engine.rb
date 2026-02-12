@@ -109,6 +109,9 @@ module EventEngine
           occurred_at = args.delete(:occurred_at)
           metadata = args.delete(:metadata)
           idempotency_key = args.delete(:idempotency_key)
+          aggregate_type = args.delete(:aggregate_type)
+          aggregate_id = args.delete(:aggregate_id)
+          aggregate_version = args.delete(:aggregate_version)
 
           input_keys = required + optional
           inputs = args.slice(*input_keys)
@@ -126,7 +129,10 @@ module EventEngine
             version: event_version,
             occurred_at: occurred_at,
             metadata: metadata,
-            idempotency_key: idempotency_key
+            idempotency_key: idempotency_key,
+            aggregate_type: aggregate_type,
+            aggregate_id: aggregate_id,
+            aggregate_version: aggregate_version
           )
         end
 
