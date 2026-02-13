@@ -14,8 +14,7 @@ Gem::Specification.new do |spec|
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/tylercschneider/event_engine"
+  spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "https://github.com/tylercschneider/event_engine/blob/main/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "https://github.com/tylercschneider/event_engine/issues"
   spec.metadata["documentation_uri"] = "https://github.com/tylercschneider/event_engine#readme"
