@@ -51,7 +51,7 @@ EventEngine is preparing for its first RubyGems release. The core event pipeline
 - Add `for_aggregate` scope and composite index
 
 ### 7. Publisher Row Locking
-**Status:** Open (#67)
+**Status:** Merged (#67)
 
 - Add `LockingStrategy` with adapter detection
 - `PostgresStrategy` applies `FOR UPDATE SKIP LOCKED`
@@ -66,4 +66,4 @@ EventEngine is preparing for its first RubyGems release. The core event pipeline
 | 1 | DB constraints + event immutability + transport validation | 6 | Merged (#64) |
 | 2 | Dead letter error context + dashboard auth warning | 8 | Merged (#65) |
 | 3 | Aggregate tracking columns + pipeline | 12 | Merged (#66) |
-| 4 | Publisher row locking | 5 | Open (#67) |
+| 4 | Publisher row locking | 5 | Merged (#67) |
