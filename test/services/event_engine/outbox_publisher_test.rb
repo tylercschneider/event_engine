@@ -270,6 +270,40 @@ module EventEngine
       transport.verify
     end
 
+    test "accepts a custom locking strategy" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 }
+      )
 
+      transport = EventEngine::Transports::InMemoryTransport.new
+      strategy = EventEngine::LockingStrategy::NullStrategy.new
+
+      EventEngine::OutboxPublisher.new(
+        transport: transport,
+        locking_strategy: strategy
+      ).call
+
+      assert_not_nil event.reload.published_at
+    end
+
+    test "uses NullStrategy by default for SQLite" do
+      event = EventEngine::OutboxEvent.create!(
+        event_type: "A",
+        event_name: "a",
+        event_version: 1,
+        occurred_at: Time.current,
+        payload: { x: 1 }
+      )
+
+      transport = EventEngine::Transports::InMemoryTransport.new
+
+      EventEngine::OutboxPublisher.new(transport: transport).call
+
+      assert_not_nil event.reload.published_at
+    end
   end
 end
