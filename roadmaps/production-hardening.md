@@ -1,6 +1,6 @@
 # Production Hardening Plan
 
-Status: **In Progress**
+Status: **Complete**
 
 ## Context
 
@@ -9,36 +9,31 @@ EventEngine is preparing for its first RubyGems release. The core event pipeline
 ## Features
 
 ### 1. DB Constraints & Indexes
-**Status:** Planned
-**PR:** 1
+**Status:** Merged (#64)
 
 - Add `NOT NULL` constraint on `event_name` at DB level (already enforced at model level)
 - Add index on `created_at` (used by `ordered` scope)
 
 ### 2. Event Immutability
-**Status:** Planned
-**PR:** 1
+**Status:** Merged (#64)
 
 - Add `attr_readonly` for core identity fields (`event_name`, `event_type`, `event_version`, `payload`, `metadata`, `occurred_at`, `idempotency_key`)
 - Mutable fields (`published_at`, `attempts`, `dead_lettered_at`) remain writable
 
 ### 3. Transport Interface Validation
-**Status:** Planned
-**PR:** 1
+**Status:** Merged (#64)
 
 - Validate that configured transport responds to `#publish` during `validate!`
 - Raise `InvalidConfigurationError` with clear message if not
 
 ### 4. Dashboard Auth Warning
-**Status:** Planned
-**PR:** 2
+**Status:** Merged (#65)
 
 - Log a warning when `dashboard_auth` is nil explaining how to configure it
 - Still return 403 as before
 
 ### 5. Dead Letter Error Context
-**Status:** Planned
-**PR:** 2
+**Status:** Merged (#65)
 
 - Add `last_error_message` (text) and `last_error_class` (string) columns
 - Persist error info on every publish failure (not just dead-letters)
@@ -46,8 +41,7 @@ EventEngine is preparing for its first RubyGems release. The core event pipeline
 - Show error info in dashboard views
 
 ### 6. Aggregate Tracking
-**Status:** Planned
-**PR:** 3
+**Status:** Merged (#66)
 
 - Add `aggregate_type`, `aggregate_id` (string), `aggregate_version` (integer) columns
 - All nullable — aggregate tracking is optional
@@ -57,20 +51,19 @@ EventEngine is preparing for its first RubyGems release. The core event pipeline
 - Add `for_aggregate` scope and composite index
 
 ### 7. Publisher Row Locking
-**Status:** Planned
-**PR:** 4
+**Status:** Open (#67)
 
 - Add `LockingStrategy` with adapter detection
 - `PostgresStrategy` applies `FOR UPDATE SKIP LOCKED`
 - `NullStrategy` for SQLite/dev (no-op)
 - Wrap publisher batch in transaction
-- Optional `configuration.locking_strategy` override
+- Optional `locking_strategy:` kwarg on OutboxPublisher
 
 ## PR Plan
 
 | PR | Scope | ~Files | Status |
 |---|---|---|---|
-| 1 | DB constraints + event immutability + transport validation | 6 | Planned |
-| 2 | Dead letter error context + dashboard auth warning | 8 | Planned |
-| 3 | Aggregate tracking columns + pipeline | 10 | Planned |
-| 4 | Publisher row locking | 5 | Planned |
+| 1 | DB constraints + event immutability + transport validation | 6 | Merged (#64) |
+| 2 | Dead letter error context + dashboard auth warning | 8 | Merged (#65) |
+| 3 | Aggregate tracking columns + pipeline | 12 | Merged (#66) |
+| 4 | Publisher row locking | 5 | Open (#67) |
