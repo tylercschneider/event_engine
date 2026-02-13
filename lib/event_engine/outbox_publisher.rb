@@ -8,24 +8,27 @@ module EventEngine
     # @param transport [#publish] the transport to publish through
     # @param batch_size [Integer, nil] max events per batch (nil for unlimited)
     # @param max_attempts [Integer, nil] max attempts before dead-lettering
-    def initialize(transport:, batch_size: nil, max_attempts: nil)
+    def initialize(transport:, batch_size: nil, max_attempts: nil, locking_strategy: nil)
       @transport = transport
       @batch_size = batch_size
       @max_attempts = max_attempts
+      @locking_strategy = locking_strategy || LockingStrategy.for_current_adapter
     end
 
     # Fetches and publishes a batch of unpublished events.
     #
     # @return [void]
     def call
-      events = batch
-      events.each do |event|
-        publish_event(event)
-      end
+      OutboxEvent.transaction do
+        events = batch
+        events.each do |event|
+          publish_event(event)
+        end
 
-      ActiveSupport::Notifications.instrument("event_engine.publish_batch", {
-        count: events.size
-      })
+        ActiveSupport::Notifications.instrument("event_engine.publish_batch", {
+          count: events.size
+        })
+      end
     end
 
     private
@@ -37,6 +40,7 @@ module EventEngine
 
       scope = scope.retryable(@max_attempts) if @max_attempts
       scope = scope.limit(@batch_size) if @batch_size
+      scope = @locking_strategy.apply(scope)
 
       scope.to_a
     end
