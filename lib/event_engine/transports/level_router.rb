@@ -32,7 +32,7 @@ module EventEngine
       private
 
       def transport_for(event)
-        @routes.fetch(event.event_level)
+        @routes[event.event_level] || @default
       end
     end
   end

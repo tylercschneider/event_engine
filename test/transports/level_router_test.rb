@@ -13,6 +13,18 @@ class LevelRouterTest < ActiveSupport::TestCase
     assert_equal 1, level_three.published.size
   end
 
+  def test_falls_back_to_default_transport_for_unmapped_level
+    fallback = RecordingTransport.new
+    router = EventEngine::Transports::LevelRouter.new(
+      routes: { 3 => RecordingTransport.new },
+      default: fallback
+    )
+
+    router.publish(FakeEvent.new(event_level: 4))
+
+    assert_equal 1, fallback.published.size
+  end
+
   private
 
   FakeEvent = Struct.new(:event_level, keyword_init: true)
