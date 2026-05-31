@@ -46,7 +46,7 @@ module EventEngine
       # Level 2 defers subscriber invocation to a background job, no outbox.
       if schema.event_level == 2
         DispatchSubscribersJob.perform_later(event_name.to_s, attrs)
-        return
+        return Event.new(**attrs)
       end
 
       event = OutboxWriter.write(attrs)
