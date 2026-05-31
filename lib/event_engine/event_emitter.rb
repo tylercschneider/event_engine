@@ -1,6 +1,8 @@
 module EventEngine
-  # Orchestrates event emission: validates inputs, builds the payload,
-  # writes to the outbox, fires notifications, and enqueues delivery.
+  # Orchestrates event emission: validates inputs, builds the payload, and
+  # routes by the schema's event_level. Level 1 invokes subscribers
+  # synchronously in-process; levels 3+ write to the outbox, fire
+  # notifications, and enqueue delivery.
   #
   # @example
   #   EventEmitter.emit(event_name: :cow_fed, data: { cow: cow }, registry: registry)
@@ -14,7 +16,8 @@ module EventEngine
     # @param occurred_at [Time, nil] when the event occurred (defaults to now)
     # @param metadata [Hash, nil] optional contextual metadata
     # @param idempotency_key [String, nil] deduplication key (defaults to UUID)
-    # @return [OutboxEvent] the persisted outbox event
+    # @return [OutboxEvent, Event] the persisted outbox event (levels 3+) or a
+    #   non-persisted Event (level 1)
     # @raise [SchemaRegistry::RegistryFrozenError] if registry is not loaded
     # @raise [SchemaRegistry::UnknownEventError] if event name is not registered
     def self.emit(event_name:, data:, registry:, version: nil, occurred_at: nil, metadata: nil, idempotency_key: nil,
@@ -32,6 +35,13 @@ module EventEngine
       attrs[:aggregate_type] = aggregate_type
       attrs[:aggregate_id] = aggregate_id
       attrs[:aggregate_version] = aggregate_version
+
+      # Level 1 executes synchronously in-process and never touches the outbox.
+      if schema.event_level == 1
+        event = Event.new(**attrs)
+        SubscriberRegistry.subscribers_for(event_name).each { |subscriber| subscriber.new.handle(event) }
+        return event
+      end
 
       event = OutboxWriter.write(attrs)
 
