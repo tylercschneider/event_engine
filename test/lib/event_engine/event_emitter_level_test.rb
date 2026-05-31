@@ -3,6 +3,8 @@ require "ostruct"
 
 module EventEngine
   class EventEmitterLevelTest < ActiveSupport::TestCase
+    include ActiveJob::TestHelper
+
     class CowObserved < EventDefinition
       event_name :cow_observed
       event_type :system
@@ -12,8 +14,17 @@ module EventEngine
       required_payload :weight, from: :cow, attr: :weight
     end
 
+    class CowMooed < EventDefinition
+      event_name :cow_mooed
+      event_type :system
+      event_level 2
+
+      input :cow
+      required_payload :weight, from: :cow, attr: :weight
+    end
+
     setup do
-      compiled = DslCompiler.compile([CowObserved])
+      compiled = DslCompiler.compile([CowObserved, CowMooed])
       compiled.finalize!
 
       event_schema = EventSchema.new
@@ -64,6 +75,36 @@ module EventEngine
     test "level 1 emit returns a non-persisted event object" do
       result = EventEmitter.emit(
         event_name: :cow_observed,
+        data: { cow: OpenStruct.new(weight: 500) },
+        registry: @registry
+      )
+
+      assert_instance_of EventEngine::Event, result
+    end
+
+    test "level 2 event does not write an outbox row" do
+      assert_no_difference -> { OutboxEvent.count } do
+        EventEmitter.emit(
+          event_name: :cow_mooed,
+          data: { cow: OpenStruct.new(weight: 500) },
+          registry: @registry
+        )
+      end
+    end
+
+    test "level 2 event enqueues a dispatch job" do
+      assert_enqueued_with(job: DispatchSubscribersJob) do
+        EventEmitter.emit(
+          event_name: :cow_mooed,
+          data: { cow: OpenStruct.new(weight: 500) },
+          registry: @registry
+        )
+      end
+    end
+
+    test "level 2 emit returns a non-persisted event object" do
+      result = EventEmitter.emit(
+        event_name: :cow_mooed,
         data: { cow: OpenStruct.new(weight: 500) },
         registry: @registry
       )
