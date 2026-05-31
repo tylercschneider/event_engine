@@ -19,7 +19,7 @@ module EventEngine
     # @param event_name [Symbol, String]
     # @return [Array<Class>]
     def self.subscribers_for(event_name)
-      registrations[event_name.to_sym]
+      registrations[event_name.to_sym] || []
     end
 
     # Removes all registrations. Intended for test isolation.
