@@ -43,6 +43,9 @@ module EventEngine
         return event
       end
 
+      # Level 2 defers to a background job and never touches the outbox.
+      return if schema.event_level == 2
+
       event = OutboxWriter.write(attrs)
 
       ActiveSupport::Notifications.instrument("event_engine.event_emitted", {

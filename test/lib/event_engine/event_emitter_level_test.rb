@@ -12,8 +12,17 @@ module EventEngine
       required_payload :weight, from: :cow, attr: :weight
     end
 
+    class CowMooed < EventDefinition
+      event_name :cow_mooed
+      event_type :system
+      event_level 2
+
+      input :cow
+      required_payload :weight, from: :cow, attr: :weight
+    end
+
     setup do
-      compiled = DslCompiler.compile([CowObserved])
+      compiled = DslCompiler.compile([CowObserved, CowMooed])
       compiled.finalize!
 
       event_schema = EventSchema.new
@@ -69,6 +78,16 @@ module EventEngine
       )
 
       assert_instance_of EventEngine::Event, result
+    end
+
+    test "level 2 event does not write an outbox row" do
+      assert_no_difference -> { OutboxEvent.count } do
+        EventEmitter.emit(
+          event_name: :cow_mooed,
+          data: { cow: OpenStruct.new(weight: 500) },
+          registry: @registry
+        )
+      end
     end
   end
 end
