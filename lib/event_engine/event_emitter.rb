@@ -33,6 +33,9 @@ module EventEngine
       attrs[:aggregate_id] = aggregate_id
       attrs[:aggregate_version] = aggregate_version
 
+      # Level 1 executes synchronously in-process and never touches the outbox.
+      return if schema.event_level == 1
+
       event = OutboxWriter.write(attrs)
 
       ActiveSupport::Notifications.instrument("event_engine.event_emitted", {
