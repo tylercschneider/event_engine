@@ -91,9 +91,10 @@ module EventEngine
         registry: @registry
       )
 
-      diag = "payload_class=#{event.payload.class} " \
-             "key_classes=#{event.payload.keys.map(&:class).inspect} " \
-             "payload=#{event.payload.inspect}"
+      direct = EventBuilder.build(schema: schema, data: { cow: OpenStruct.new(weight: 500) })
+      diag = "emit_payload=#{event.payload.inspect} " \
+             "direct_build_payload=#{direct[:payload].inspect} " \
+             "field0=#{schema.payload_fields.first.inspect}"
       assert_equal({ weight: 500 }, event.payload, diag)
     end
 
