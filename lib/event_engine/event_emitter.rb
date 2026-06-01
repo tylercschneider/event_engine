@@ -35,6 +35,7 @@ module EventEngine
       attrs[:aggregate_type] = aggregate_type
       attrs[:aggregate_id] = aggregate_id
       attrs[:aggregate_version] = aggregate_version
+      attrs[:event_level] = schema.event_level
 
       # Level 1 executes synchronously in-process and never touches the outbox.
       if schema.event_level == 1
@@ -70,7 +71,7 @@ module EventEngine
         end
 
         OutboxPublisher.new(
-          transport: transport,
+          router: OutboxRouter.new(transport: transport),
           batch_size: EventEngine.configuration.batch_size
         ).call
       end
