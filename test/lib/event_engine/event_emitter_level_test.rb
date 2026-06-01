@@ -84,13 +84,17 @@ module EventEngine
     end
 
     test "level 1 event has a symbol-keyed payload" do
+      schema = @registry.schema(:cow_observed)
       event = EventEmitter.emit(
         event_name: :cow_observed,
         data: { cow: OpenStruct.new(weight: 500) },
         registry: @registry
       )
 
-      assert_equal({ weight: 500 }, event.payload)
+      diag = "event_level=#{schema.event_level.inspect} " \
+             "field_name_classes=#{schema.payload_fields.map { |f| f[:name].class }.inspect} " \
+             "payload=#{event.payload.inspect} class=#{event.class}"
+      assert_equal({ weight: 500 }, event.payload, diag)
     end
 
     test "level 1 emit returns a non-persisted event object" do
