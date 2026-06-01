@@ -91,9 +91,9 @@ module EventEngine
         registry: @registry
       )
 
-      diag = "event_level=#{schema.event_level.inspect} " \
-             "field_name_classes=#{schema.payload_fields.map { |f| f[:name].class }.inspect} " \
-             "payload=#{event.payload.inspect} class=#{event.class}"
+      diag = "payload_class=#{event.payload.class} " \
+             "key_classes=#{event.payload.keys.map(&:class).inspect} " \
+             "payload=#{event.payload.inspect}"
       assert_equal({ weight: 500 }, event.payload, diag)
     end
 
