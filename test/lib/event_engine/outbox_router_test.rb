@@ -20,5 +20,14 @@ module EventEngine
 
       assert_equal 1, received.size
     end
+
+    test "routes a level 4 event to the broker transport" do
+      transport = EventEngine::Transports::InMemoryTransport.new
+      event = FakeEvent.new(event_name: :sale_processed, event_level: 4)
+
+      OutboxRouter.new(transport: transport).route(event)
+
+      assert_equal [event], transport.events
+    end
   end
 end

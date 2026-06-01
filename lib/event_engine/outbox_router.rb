@@ -17,8 +17,13 @@ module EventEngine
     # @param event [OutboxEvent] the drained event
     # @return [void]
     def route(event)
-      SubscriberRegistry.subscribers_for(event.event_name).each do |subscriber|
-        subscriber.new.handle(event)
+      case event.event_level
+      when 4
+        @transport.publish(event)
+      else
+        SubscriberRegistry.subscribers_for(event.event_name).each do |subscriber|
+          subscriber.new.handle(event)
+        end
       end
     end
   end
