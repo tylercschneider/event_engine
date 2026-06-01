@@ -36,6 +36,7 @@ module EventEngine
       attrs[:aggregate_id] = aggregate_id
       attrs[:aggregate_version] = aggregate_version
       attrs[:event_level] = schema.event_level
+      attrs[:payload] = attrs[:payload].transform_keys(&:to_s)
 
       return dispatch_synchronously(event_name, attrs) if schema.event_level == 1
       return dispatch_in_background(event_name, attrs) if schema.event_level == 2
