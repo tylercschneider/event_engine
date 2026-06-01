@@ -1,0 +1,41 @@
+require "test_helper"
+
+module EventEngine
+  class OutboxRouterTest < ActiveSupport::TestCase
+    teardown do
+      SubscriberRegistry.clear!
+    end
+
+    FakeEvent = Struct.new(:event_name, :event_level, keyword_init: true)
+
+    test "routes a level 3 event to its subscribers" do
+      received = []
+      Class.new(Subscriber) do
+        subscribes_to :cow_milked
+        define_method(:handle) { |event| received << event }
+      end
+
+      router = OutboxRouter.new(transport: nil)
+      router.route(FakeEvent.new(event_name: :cow_milked, event_level: 3))
+
+      assert_equal 1, received.size
+    end
+
+    test "routes a level 4 event to the broker transport" do
+      transport = EventEngine::Transports::InMemoryTransport.new
+      event = FakeEvent.new(event_name: :sale_processed, event_level: 4)
+
+      OutboxRouter.new(transport: transport).route(event)
+
+      assert_equal [event], transport.events
+    end
+
+    test "raises for an unsupported level 5 event" do
+      event = FakeEvent.new(event_name: :ledger_entry, event_level: 5)
+
+      assert_raises(EventEngine::OutboxRouter::UnsupportedLevelError) do
+        OutboxRouter.new(transport: nil).route(event)
+      end
+    end
+  end
+end
