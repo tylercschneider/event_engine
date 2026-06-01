@@ -37,18 +37,8 @@ module EventEngine
       attrs[:aggregate_version] = aggregate_version
       attrs[:event_level] = schema.event_level
 
-      # Level 1 executes synchronously in-process and never touches the outbox.
-      if schema.event_level == 1
-        event = Event.new(**attrs)
-        SubscriberRegistry.subscribers_for(event_name).each { |subscriber| subscriber.new.handle(event) }
-        return event
-      end
-
-      # Level 2 defers subscriber invocation to a background job, no outbox.
-      if schema.event_level == 2
-        DispatchSubscribersJob.perform_later(event_name.to_s, attrs)
-        return Event.new(**attrs)
-      end
+      return dispatch_synchronously(event_name, attrs) if schema.event_level == 1
+      return dispatch_in_background(event_name, attrs) if schema.event_level == 2
 
       event = OutboxWriter.write(attrs)
 
@@ -78,5 +68,18 @@ module EventEngine
 
       event
     end
+
+    def self.dispatch_synchronously(event_name, attrs)
+      event = Event.new(**attrs)
+      SubscriberRegistry.subscribers_for(event_name).each { |subscriber| subscriber.new.handle(event) }
+      event
+    end
+    private_class_method :dispatch_synchronously
+
+    def self.dispatch_in_background(event_name, attrs)
+      DispatchSubscribersJob.perform_later(event_name.to_s, attrs)
+      Event.new(**attrs)
+    end
+    private_class_method :dispatch_in_background
   end
 end
