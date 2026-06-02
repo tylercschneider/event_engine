@@ -14,6 +14,10 @@ module EventEngine
         end
       when :active_job
         PublishOutboxEventsJob.perform_later
+      when :manual
+        # No automatic delivery. The outbox is drained only by an explicit
+        # OutboxPublisher call (e.g. a scheduled job or operator action).
+        nil
       else
         raise ArgumentError, "Unknown delivery adapter: #{adapter}"
       end

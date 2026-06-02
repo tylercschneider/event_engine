@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`:manual` delivery adapter** — Delivery becomes a no-op; the outbox is drained
+  only by an explicit `OutboxPublisher` call (a scheduled job, rake task, or
+  operator action). Lets apps control exactly when events are published.
 - **Per-event levels** — Each event can declare an `event_level` (1–5) that decides how it is delivered, without changing producer code.
   - Levels 1–3 invoke in-process subscribers with increasing durability: level 1 synchronously, level 2 via a background job, level 3 durably when the outbox is drained
   - Level 4 publishes to a broker transport; level 5 (event sourcing) is unsupported and raises
