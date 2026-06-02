@@ -210,6 +210,10 @@ end
 ### Delivery modes
 - `:inline` (default): publish immediately after writing to outbox.
 - `:active_job`: enqueue `EventEngine::PublishOutboxEventsJob`.
+- `:manual`: do not deliver automatically. The outbox is drained only by an
+  explicit `OutboxPublisher` call — e.g. a scheduled job, a rake task, or an
+  operator action. Useful when you want full control over when events are
+  published.
 
 ---
 

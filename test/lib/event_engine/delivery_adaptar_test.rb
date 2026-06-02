@@ -62,6 +62,20 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
     assert_not called, "Should not publish on rollback"
   end
 
+  test "manual adapter does not publish" do
+    called = false
+
+    EventEngine.configure do |config|
+      config.delivery_adapter = :manual
+    end
+
+    EventEngine::Delivery.enqueue do
+      called = true
+    end
+
+    assert_not called, "manual adapter should leave the outbox for an explicit drain"
+  end
+
   test "active_job adapter enqueues PublishOutboxEventsJob" do
     EventEngine.configure do |config|
       config.delivery_adapter = :active_job
