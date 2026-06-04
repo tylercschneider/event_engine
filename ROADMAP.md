@@ -63,6 +63,16 @@ Gem-side telemetry pipeline that sends lightweight event metadata to EventEngine
 
 ---
 
+## Backlog
+
+Proposed work. Captured here because the repo's Issues are disabled.
+
+- [ ] **Per-emit immediate delivery (publish just this event)** — A per-call way to deliver *only* the emitted event: write it to the outbox, then route just that event through the configured `OutboxRouter`/transport (and its level subscribers) and mark it published — without the **global outbox drain** that `:inline` performs on every emit, and independent of the global `delivery_adapter` (which can't be flipped per request thread-safely).
+  - Possible shapes: a `deliver:` keyword on the emit helpers (`EventEngine.order_placed(..., deliver: :now)`, default = configured adapter), or a public single-event API (`EventEngine.publish(event)` / `OutboxPublisher#publish_one(event)`).
+  - Motivation: an app on `:manual` that wants **some** events published immediately while **others** wait for a controlled drain. The promo site (ee_app) has exactly this — a publish-now playground and a hold-for-drain stepper in one app — and currently works around it with `event.update!(published_at: Time.current)`, which skips routing/subscribers. With `:inline` the playground's emit would drain the stepper's waiting events; with `:manual` nothing publishes. A per-emit `deliver: :now` would resolve it cleanly and thread-safely.
+
+---
+
 ## Related Projects
 
 - **EventEngine Cloud** (separate project) — Paid SaaS dashboard that receives telemetry from the Cloud Reporter. Provides cross-app event analytics, throughput monitoring, dead letter alerts, and schema drift detection. See `docs/cloud_saas_plan.md` for the build plan.
