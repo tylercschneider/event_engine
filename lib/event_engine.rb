@@ -151,18 +151,17 @@ module EventEngine
           unknown = args.keys - input_keys
           raise ArgumentError, "Unknown inputs: #{unknown.join(', ')}" if unknown.any?
 
-          EventEmitter.emit(
-            event_name: event_name,
-            data: inputs,
-            registry: registry,
-            version: event_version,
-            occurred_at: occurred_at,
-            metadata: metadata,
-            idempotency_key: idempotency_key,
-            aggregate_type: aggregate_type,
-            aggregate_id: aggregate_id,
-            aggregate_version: aggregate_version
-          )
+          schema = registry.schema(event_name, version: event_version)
+          attrs = EventBuilder.build(schema: schema, data: inputs)
+          attrs[:occurred_at] = occurred_at || Time.current
+          attrs[:metadata] = metadata
+          attrs[:idempotency_key] = idempotency_key || SecureRandom.uuid
+          attrs[:aggregate_type] = aggregate_type
+          attrs[:aggregate_id] = aggregate_id
+          attrs[:aggregate_version] = aggregate_version
+          attrs[:event_level] = schema.event_level
+
+          EventEngine.dispatch(Event.new(**attrs))
         end
 
         _installed_event_helpers << event_name
