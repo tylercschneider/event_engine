@@ -30,4 +30,11 @@ class EventEngine::HandlerRegistryTest < ActiveSupport::TestCase
 
     assert_equal 1, received.size
   end
+
+  test "dispatch returns the event" do
+    registry = EventEngine::HandlerRegistry.new
+    event = EventEngine::Event.new(event_name: :thing_happened, event_level: 1, payload: {})
+
+    assert_same event, registry.dispatch(event)
+  end
 end

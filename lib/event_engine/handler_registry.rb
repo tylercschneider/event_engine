@@ -13,6 +13,7 @@ module EventEngine
         levels = registration[:levels]
         registration[:handler].call(event) if levels == :all || levels.include?(event.event_level)
       end
+      event
     end
   end
 end
