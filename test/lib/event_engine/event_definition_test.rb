@@ -21,5 +21,15 @@ module EventEngine
 
       assert_equal 4, definition.schema.event_level
     end
+
+    test "an event_level outside the supported range is a schema error" do
+      definition = Class.new(EventEngine::EventDefinition) do
+        event_name :levelled
+        event_type :domain
+        event_level 9
+      end
+
+      refute definition.valid_schema?
+    end
   end
 end

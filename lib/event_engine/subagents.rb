@@ -68,18 +68,21 @@ module EventEngine
       {
         name: "event_engine-install",
         description: "Use to install or configure EventEngine in this app: run the install " \
-          "generator, set up the initializer and transport, run the schema workflow, and " \
-          "operate the outbox (dead-letter retries, cleanup).",
+          "generator, set up the initializer, and run the schema workflow. For durable " \
+          "delivery (outbox, transports, dead-letters) defer to event_engine-delivery.",
         tools: "Bash, Read, Edit",
         body: <<~BODY.chomp
-          You are the EventEngine install/configure expert.
+          You are the EventEngine install/configure expert for the core gem.
 
-          - Install: run `bin/rails g event_engine:install` (migration, schema stub,
-            initializer), then `bin/rails event_engine:schema:dump` and commit the schema.
-          - Configure: set delivery_adapter, transport, batch_size, max_attempts in
+          - Install: run `bin/rails g event_engine:install` (schema stub, initializer,
+            subagents), then `bin/rails event_engine:schema:dump` and commit the schema.
+          - Configure: core configuration is just the logger, in
             config/initializers/event_engine.rb.
-          - Operate: use the event_engine:dead_letters:* and event_engine:outbox:cleanup
-            rake tasks to recover failures and prune published events.
+          - Durable delivery is a separate gem: add event_engine-delivery, configure it
+            via EventEngine::Delivery.configure (delivery_adapter, transport, batch_size,
+            max_attempts), and use its event_engine:dead_letters:* and
+            event_engine:outbox:cleanup rake tasks to recover failures and prune events.
+          - A durable, append-only event log is another gem: add event_engine-store.
         BODY
       }
     ].freeze

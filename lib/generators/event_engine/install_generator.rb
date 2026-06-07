@@ -7,10 +7,6 @@ module EventEngine
 
       desc "Install EventEngine (schema file, initializer, migrations)"
 
-      def install_migrations
-        rake "event_engine:install:migrations"
-      end
-
       def create_event_schema
         template "event_schema.rb", "db/event_schema.rb"
       end
