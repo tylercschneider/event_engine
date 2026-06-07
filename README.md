@@ -45,7 +45,6 @@ You can run the core gem **by itself** with your own handlers — see
 - [Rake tasks](#rake-tasks)
 - [Installation generator](#installation-generator)
 - [For AI assistants](#for-ai-assistants)
-- [Gaps & fragile assumptions](#gaps--fragile-assumptions)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -180,12 +179,9 @@ The resulting `event.payload` is a **symbol-keyed Hash**.
 
 ### There is no `type:` casting
 
-> **Important — this corrects older docs.** The DSL has **no `type:` option** and
-> performs **no type casting**. There is also **no `entity_class` / `entity_id` /
-> `entity_version`** macro. Earlier drafts of this README showed those — they were
-> never implemented and will raise `ArgumentError` (unknown keyword) or
-> `NoMethodError`. The complete payload DSL is `required_payload` / `optional_payload`
-> with `from:` and `attr:` only.
+The complete payload DSL is `required_payload` / `optional_payload` with `from:` and
+`attr:` only — there is no `type:` option and no type casting, and no
+`entity_class` / `entity_id` / `entity_version` macros.
 
 Whatever value `attr:` returns is stored as-is. If you need a value coerced to a
 specific type, do it on the source object's method (e.g. have `cow.weight` return a
@@ -418,9 +414,9 @@ end
 |---|---|---|
 | `logger` | `Rails.logger` (or `Logger.new($stdout)` outside Rails) | Where core logs |
 
-> **Do not put `delivery_adapter`, `transport`, `batch_size`, etc. in
-> `EventEngine.configure`** — those belong to `event_engine-delivery` and are set via
-> `EventEngine::Delivery.configure`. Putting them here raises `NoMethodError`.
+> Delivery options (`delivery_adapter`, `transport`, `batch_size`, …) belong to
+> `event_engine-delivery` and are set via `EventEngine::Delivery.configure` — see that
+> gem's README.
 
 ---
 
@@ -446,11 +442,9 @@ It creates `config/initializers/event_engine.rb`, a stub `db/event_schema.rb`, a
 installs Claude Code subagent files under `.claude/agents/` (see
 [For AI assistants](#for-ai-assistants)).
 
-> **Known issue:** the generator also runs `rake event_engine:install:migrations`,
-> but the core gem ships **no migrations** (the outbox migration moved to
-> `event_engine-delivery`). That step is a no-op/leftover from the extraction. Add
-> the gem whose migration you actually need and run its migrations directly. See
-> [Gaps & fragile assumptions](#gaps--fragile-assumptions).
+The core gem itself ships no migrations. If you need the outbox or the event log,
+install the companion gem you need and run its migrations directly (see
+`event_engine-delivery` / `event_engine-store`).
 
 ---
 
@@ -460,44 +454,6 @@ A condensed, authoritative API reference ships inside the gem at
 `lib/event_engine/reference/guide.md` and is installed into consuming apps as Claude
 Code subagents (`.claude/agents/`). When working in a host app, prefer that
 reference and this README over reading gem internals.
-
----
-
-## Gaps & fragile assumptions
-
-These are real rough edges discovered while documenting. They don't block use, but
-you should know about them. **(These are doc call-outs, not yet fixed in code.)**
-
-1. **Stale `config/routes.rb` in core.** Core still declares `dashboard` /
-   `dead_letters` routes, but those controllers were moved to
-   `event_engine-delivery`. If you mount `EventEngine::Engine` directly, those routes
-   resolve to controllers that don't exist in core. Mount
-   `EventEngine::Delivery::Engine` (from the delivery gem) for the dashboard instead.
-
-2. **Install generator references missing migrations.** As noted above,
-   `event_engine:install:migrations` has nothing to copy in core.
-
-3. **Stale shipped guide/subagents may mention delivery features as core.** The
-   bundled `reference/guide.md` and `subagents.rb` historically described the outbox,
-   transports, and dead-letters (now in `event_engine-delivery`) and showed delivery
-   options under `EventEngine.configure` (they belong to `EventEngine::Delivery.configure`).
-   This README is the corrected source of truth for the split.
-
-4. **`event_level` is not range-validated.** You can set any integer (or omit it);
-   nothing rejects, say, `event_level 9`. The meaning of a level is enforced only by
-   whatever handler interprets it.
-
-5. **No `type:` casting.** Payload values are stored exactly as `attr:` returns them.
-   Coerce at the source if you need a guaranteed type.
-
-6. **Definitions must be eager-loadable.** Schema dump calls
-   `Rails.application.eager_load!` and collects `EventDefinition.descendants`. If your
-   definitions live outside an eager-load path, they won't be picked up. Keep them in
-   `app/event_definitions/` (or another autoload path).
-
-7. **No handler ⇒ silent no-op.** With no handler registered, emitting builds and
-   dispatches an event that nothing observes. Make sure a companion gem or your own
-   handler is registered.
 
 ---
 

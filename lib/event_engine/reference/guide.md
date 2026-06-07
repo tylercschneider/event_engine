@@ -75,6 +75,12 @@ level onto the event. Level 5 (event sourcing) is reserved but unsupported by th
 delivery layer (`UnsupportedLevelError`). An omitted level is `nil`; the delivery
 layer routes `nil` through its outbox path — set a level explicitly to be clear.
 
+**Signals to move up a level** — let the problem, not a guess, drive the upgrade:
+
+- A synchronous (level 1) subscriber is slow or on the request hot path → **1 → 2**: defer it to a background job so the caller stops waiting.
+- Work is being lost across crashes, restarts, or deploys → **2 → 3**: capture in the outbox so the reaction survives and is atomic with your write.
+- An independent service needs to consume the event on its own deploy cycle → **3 → 4**: publish it to the external broker.
+
 Keep subscribers idempotent so moving an event up a level later requires no rewrite.
 
 ---
@@ -159,8 +165,7 @@ end
 
 **Delivery options are configured separately**, on `EventEngine::Delivery.configure`
 (`delivery_adapter`, `transport`, `batch_size`, `max_attempts`, `retention_period`,
-`dashboard_auth`, `cloud_*`). Setting those on `EventEngine.configure` raises
-`NoMethodError`. See the `event_engine-delivery` README.
+`dashboard_auth`, `cloud_*`). See the `event_engine-delivery` README.
 
 ---
 
