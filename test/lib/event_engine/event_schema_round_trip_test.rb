@@ -33,4 +33,29 @@ class EventSchemaRoundTripTest < ActiveSupport::TestCase
   ensure
     file.unlink
   end
+
+  test "writer and loader round-trip preserves process_type" do
+    original = EventEngine::EventSchema.new
+    original.register(
+      EventEngine::EventDefinition::Schema.new(
+        event_name: :cow_fed,
+        event_version: 1,
+        event_type: :domain,
+        process_type: :durable,
+        required_inputs: [:cow],
+        optional_inputs: [],
+        payload_fields: [{ name: :weight, from: :cow, attr: :weight }]
+      )
+    )
+    original.finalize!
+
+    file = Tempfile.new("event_schema.rb")
+
+    EventEngine::EventSchemaWriter.write(file.path, original)
+    loaded = EventEngine::EventSchemaLoader.load(file.path).event_schema
+
+    assert_equal :durable, loaded.latest_for(:cow_fed).process_type
+  ensure
+    file.unlink
+  end
 end
