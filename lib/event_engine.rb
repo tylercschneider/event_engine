@@ -128,6 +128,7 @@ module EventEngine
           attrs[:aggregate_id] = aggregate_id
           attrs[:aggregate_version] = aggregate_version
           attrs[:event_level] = schema.event_level
+          attrs[:process_type] = schema.process_type
 
           EventEngine.dispatch(Event.new(**attrs))
         end

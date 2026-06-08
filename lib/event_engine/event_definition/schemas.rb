@@ -14,6 +14,7 @@ module EventEngine
         :event_version,
         :event_type,
         :event_level,
+        :process_type,
         :required_inputs,
         :optional_inputs,
         :payload_fields,
@@ -83,6 +84,7 @@ module EventEngine
             event_name: @event_name,
             event_type: @event_type,
             event_level: @event_level,
+            process_type: @process_type,
             required_inputs: required,
             optional_inputs: optional,
             payload_fields: payload_fields
@@ -96,6 +98,7 @@ module EventEngine
           errors = []
           validate_identity(errors)
           validate_event_level(errors)
+          validate_process_type(errors)
           validate_payload_fields(errors)
           errors
         end
@@ -117,6 +120,11 @@ module EventEngine
         def validate_event_level(errors)
           return if @event_level.nil? || (1..5).cover?(@event_level)
           errors << "event_level must be 1-5, got #{@event_level.inspect}"
+        end
+
+        def validate_process_type(errors)
+          return if @process_type.nil? || ProcessType.known?(@process_type)
+          errors << "process_type is unknown: #{@process_type.inspect}"
         end
 
         def validate_payload_fields(errors)
