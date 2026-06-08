@@ -21,6 +21,11 @@ module EventEngine
         keyword_init: true
       )
 
+        def initialize(*)
+          super
+          self.process_type ||= ProcessType.from_event_level(event_level)
+        end
+
         # Returns a SHA256 fingerprint of the schema's canonical representation.
         # Used to detect schema changes and trigger version bumps.
         #
@@ -41,6 +46,7 @@ module EventEngine
               event_version: #{event_version.inspect},
               event_type: #{event_type.inspect},
               event_level: #{event_level.inspect},
+              process_type: #{process_type.inspect},
               required_inputs: #{required_inputs.inspect},
               optional_inputs: #{optional_inputs.inspect},
               payload_fields: [#{payload_fields.map { |h| ruby_hash(h) }.join(", ")}]
