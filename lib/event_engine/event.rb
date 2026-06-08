@@ -7,6 +7,7 @@ module EventEngine
     :event_type,
     :event_version,
     :event_level,
+    :process_type,
     :payload,
     :metadata,
     :occurred_at,

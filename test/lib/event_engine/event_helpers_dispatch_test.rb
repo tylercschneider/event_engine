@@ -8,6 +8,7 @@ module EventEngine
     class CowFed < EventDefinition
       event_name :cow_fed
       event_type :domain
+      process_type :broker
 
       input :cow
       required_payload :weight, from: :cow, attr: :weight
@@ -46,6 +47,15 @@ module EventEngine
       EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
 
       assert_equal 1, received.size
+    end
+
+    test "the dispatched event carries the declared process_type" do
+      received = []
+      EventEngine.register_handler(->(event) { received << event }, levels: :all)
+
+      EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+
+      assert_equal :broker, received.first.process_type
     end
   end
 end
