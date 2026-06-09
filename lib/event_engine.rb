@@ -27,7 +27,7 @@ require "event_engine/definition_loader"
 # (e.g. event_engine-delivery) register handlers to process the events.
 #
 # @example Define, build, and dispatch an event
-#   EventEngine.register_handler(MyHandler, levels: 1..4)
+#   EventEngine.register_handler(MyHandler, levels: :all)
 #   EventEngine.cow_fed(cow: cow, occurred_at: Time.current)
 module EventEngine
   mattr_accessor :_installed_event_helpers, default: Set.new
@@ -125,7 +125,6 @@ module EventEngine
           attrs[:aggregate_type] = aggregate_type
           attrs[:aggregate_id] = aggregate_id
           attrs[:aggregate_version] = aggregate_version
-          attrs[:event_level] = schema.event_level
           attrs[:process_type] = schema.process_type
 
           EventEngine.dispatch(Event.new(**attrs))

@@ -11,7 +11,7 @@ module EventEngine
     def dispatch(event)
       @handlers.each do |registration|
         levels = registration[:levels]
-        registration[:handler].call(event) if levels == :all || levels.include?(event.event_level)
+        registration[:handler].call(event) if levels == :all || levels.include?(event.process_type)
       end
       event
     end

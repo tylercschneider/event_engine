@@ -4,36 +4,36 @@ class EventEngine::HandlerRegistryTest < ActiveSupport::TestCase
   test "dispatches an event to a registered handler" do
     registry = EventEngine::HandlerRegistry.new
     received = []
-    registry.register(->(event) { received << event }, levels: 1..4)
+    registry.register(->(event) { received << event }, levels: [ :durable, :broker ])
 
-    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, event_level: 3, payload: {}))
+    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, process_type: :durable, payload: {}))
 
     assert_equal 1, received.size
   end
 
-  test "skips a handler whose levels exclude the event level" do
+  test "skips a handler whose levels exclude the event's process_type" do
     registry = EventEngine::HandlerRegistry.new
     received = []
-    registry.register(->(event) { received << event }, levels: [ 0 ])
+    registry.register(->(event) { received << event }, levels: [ :telemetry ])
 
-    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, event_level: 3, payload: {}))
+    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, process_type: :durable, payload: {}))
 
     assert_empty received
   end
 
-  test "an :all handler receives an event of any level" do
+  test "an :all handler receives an event of any process_type" do
     registry = EventEngine::HandlerRegistry.new
     received = []
     registry.register(->(event) { received << event }, levels: :all)
 
-    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, event_level: 0, payload: {}))
+    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, process_type: :sourced, payload: {}))
 
     assert_equal 1, received.size
   end
 
   test "dispatch returns the event" do
     registry = EventEngine::HandlerRegistry.new
-    event = EventEngine::Event.new(event_name: :thing_happened, event_level: 1, payload: {})
+    event = EventEngine::Event.new(event_name: :thing_happened, process_type: :inline, payload: {})
 
     assert_same event, registry.dispatch(event)
   end
@@ -44,7 +44,7 @@ class EventEngine::HandlerRegistryTest < ActiveSupport::TestCase
     registry.register(->(event) { received << event }, levels: :all)
     registry.clear!
 
-    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, event_level: 1, payload: {}))
+    registry.dispatch(EventEngine::Event.new(event_name: :thing_happened, process_type: :inline, payload: {}))
 
     assert_empty received
   end

@@ -13,18 +13,12 @@ module EventEngine
         :event_name,
         :event_version,
         :event_type,
-        :event_level,
         :process_type,
         :required_inputs,
         :optional_inputs,
         :payload_fields,
         keyword_init: true
       )
-
-        def initialize(*)
-          super
-          self.process_type ||= ProcessType.from_event_level(event_level)
-        end
 
         # Returns a SHA256 fingerprint of the schema's canonical representation.
         # Used to detect schema changes and trigger version bumps.
@@ -45,7 +39,6 @@ module EventEngine
               event_name: #{event_name.inspect},
               event_version: #{event_version.inspect},
               event_type: #{event_type.inspect},
-              event_level: #{event_level.inspect},
               process_type: #{process_type.inspect},
               required_inputs: #{required_inputs.inspect},
               optional_inputs: #{optional_inputs.inspect},
@@ -89,7 +82,6 @@ module EventEngine
           Schema.new(
             event_name: @event_name,
             event_type: @event_type,
-            event_level: @event_level,
             process_type: @process_type,
             required_inputs: required,
             optional_inputs: optional,
@@ -103,7 +95,6 @@ module EventEngine
         def schema_errors
           errors = []
           validate_identity(errors)
-          validate_event_level(errors)
           validate_process_type(errors)
           validate_payload_fields(errors)
           errors
@@ -121,11 +112,6 @@ module EventEngine
         def validate_identity(errors)
           errors << "event_name is required" unless @event_name
           errors << "event_type is required" unless @event_type
-        end
-
-        def validate_event_level(errors)
-          return if @event_level.nil? || (1..5).cover?(@event_level)
-          errors << "event_level must be 1-5, got #{@event_level.inspect}"
         end
 
         def validate_process_type(errors)

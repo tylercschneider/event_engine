@@ -60,17 +60,6 @@ module EventEngine
         @event_type = value
       end
 
-      # Sets the event level for this definition.
-      #
-      # The level positions the event on the event-system maturity ladder
-      # (1 = in-memory/sync ... 5 = event-sourced) and is interpreted by the
-      # routing layer to dispatch to the appropriate transport.
-      #
-      # @param value [Integer] the event level (1..5)
-      def event_level(value)
-        @event_level = value
-      end
-
       def process_type(value)
         @process_type = value
       end
