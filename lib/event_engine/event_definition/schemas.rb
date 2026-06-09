@@ -40,7 +40,6 @@ module EventEngine
               event_name: #{event_name.inspect},
               event_version: #{event_version.inspect},
               event_type: #{event_type.inspect},
-              event_level: #{event_level.inspect},
               process_type: #{process_type.inspect},
               required_inputs: #{required_inputs.inspect},
               optional_inputs: #{optional_inputs.inspect},
