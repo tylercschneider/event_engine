@@ -9,7 +9,7 @@ class EventEngine::ModuleDispatchTest < ActiveSupport::TestCase
     received = []
     EventEngine.register_handler(->(event) { received << event }, levels: :all)
 
-    EventEngine.dispatch(EventEngine::Event.new(event_name: :thing_happened, event_level: 1, payload: {}))
+    EventEngine.dispatch(EventEngine::Event.new(event_name: :thing_happened, process_type: :inline, payload: {}))
 
     assert_equal 1, received.size
   end
