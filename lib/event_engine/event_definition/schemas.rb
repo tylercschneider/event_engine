@@ -97,7 +97,6 @@ module EventEngine
         def schema_errors
           errors = []
           validate_identity(errors)
-          validate_event_level(errors)
           validate_process_type(errors)
           validate_payload_fields(errors)
           errors
@@ -115,11 +114,6 @@ module EventEngine
         def validate_identity(errors)
           errors << "event_name is required" unless @event_name
           errors << "event_type is required" unless @event_type
-        end
-
-        def validate_event_level(errors)
-          return if @event_level.nil? || (1..5).cover?(@event_level)
-          errors << "event_level must be 1-5, got #{@event_level.inspect}"
         end
 
         def validate_process_type(errors)
