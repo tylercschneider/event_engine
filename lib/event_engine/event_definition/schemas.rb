@@ -13,7 +13,6 @@ module EventEngine
         :event_name,
         :event_version,
         :event_type,
-        :event_level,
         :process_type,
         :required_inputs,
         :optional_inputs,
@@ -83,7 +82,6 @@ module EventEngine
           Schema.new(
             event_name: @event_name,
             event_type: @event_type,
-            event_level: @event_level,
             process_type: @process_type,
             required_inputs: required,
             optional_inputs: optional,
