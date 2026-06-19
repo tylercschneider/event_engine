@@ -56,6 +56,18 @@ module EventEngine
       @handler_registry ||= HandlerRegistry.new
     end
 
+    def subject_registry
+      @subject_registry ||= SubjectRegistry.new
+    end
+
+    def define_subjects(&block)
+      subject_registry.instance_eval(&block)
+    end
+
+    def reset_subjects!
+      @subject_registry = nil
+    end
+
     def register_handler(handler, levels:)
       handler_registry.register(handler, levels: levels)
     end

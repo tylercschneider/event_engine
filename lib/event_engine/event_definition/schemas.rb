@@ -14,6 +14,7 @@ module EventEngine
         :event_version,
         :event_type,
         :process_type,
+        :subject,
         :required_inputs,
         :optional_inputs,
         :payload_fields,
@@ -83,6 +84,7 @@ module EventEngine
             event_name: @event_name,
             event_type: @event_type,
             process_type: @process_type,
+            subject: @subject,
             required_inputs: required,
             optional_inputs: optional,
             payload_fields: payload_fields
