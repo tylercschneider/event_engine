@@ -13,4 +13,10 @@ class EventEngineSchemaDiffTest < ActiveSupport::TestCase
 
     assert diff.changed?
   end
+
+  test "renders an added line prefixed with a plus" do
+    diff = EventEngine::SchemaDiff.new(expected: "a\n", actual: "a\nb\n")
+
+    assert_includes diff.to_s, "+b"
+  end
 end
