@@ -14,9 +14,14 @@ module EventEngine
       # @return [Symbol] the subject name
       attr_reader :name
 
+      # @return [Hash] arbitrary declared attributes (e.g. area, owner)
+      attr_reader :metadata
+
       # @param name [Symbol]
-      def initialize(name)
+      # @param metadata [Hash]
+      def initialize(name, **metadata)
         @name = name
+        @metadata = metadata
       end
     end
 
@@ -37,9 +42,10 @@ module EventEngine
     # Declares a subject.
     #
     # @param name [Symbol]
+    # @param metadata [Hash] arbitrary attributes (e.g. area, owner)
     # @return [Subject]
-    def subject(name)
-      @subjects[name] = Subject.new(name)
+    def subject(name, **metadata)
+      @subjects[name] = Subject.new(name, **metadata)
     end
 
     # Looks up a subject by name.
