@@ -14,6 +14,7 @@ module EventEngine
         :event_version,
         :event_type,
         :process_type,
+        :subject,
         :required_inputs,
         :optional_inputs,
         :payload_fields,
