@@ -45,5 +45,26 @@ namespace :event_engine do
 
       puts "Dumping EventEngine schema to #{path}"
     end
+
+    desc "Fail with a readable diff if definitions have drifted from db/event_schema.rb"
+    task verify: :environment do
+      EventEngine::DefinitionLoader.ensure_loaded!
+
+      descendants = EventEngine::EventDefinition.descendants
+
+      if descendants.empty?
+        raise <<~MSG
+          EventEngine found no EventDefinitions.
+
+          Expected definitions to be loaded during eager load.
+          Ensure they live in an eager-load path (e.g. app/event_definitions).
+        MSG
+      end
+
+      EventEngine::SchemaDriftGuard.check!(
+        schema_path: Rails.root.join("db/event_schema.rb"),
+        definitions: descendants
+      )
+    end
   end
 end
