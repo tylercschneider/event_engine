@@ -41,6 +41,7 @@ module EventEngine
               event_version: #{event_version.inspect},
               event_type: #{event_type.inspect},
               process_type: #{process_type.inspect},
+              subject: #{subject.inspect},
               required_inputs: #{required_inputs.inspect},
               optional_inputs: #{optional_inputs.inspect},
               payload_fields: [#{payload_fields.map { |h| ruby_hash(h) }.join(", ")}]
