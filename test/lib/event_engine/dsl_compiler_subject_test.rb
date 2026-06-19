@@ -27,4 +27,23 @@ class DslCompilerSubjectTest < ActiveSupport::TestCase
 
     assert_equal [:processed], EventEngine::DslCompiler.compile([definition]).events
   end
+
+  test "compile reports every unregistered subject in one error" do
+    fed = Class.new(EventEngine::EventDefinition) do
+      event_name :fed
+      event_type :domain
+      subject :feeding
+    end
+    shipped = Class.new(EventEngine::EventDefinition) do
+      event_name :shipped
+      event_type :domain
+      subject :shipping
+    end
+
+    error = assert_raises(EventEngine::SubjectRegistry::UnknownSubjectError) do
+      EventEngine::DslCompiler.compile([fed, shipped])
+    end
+
+    assert_includes error.message, "shipping"
+  end
 end
