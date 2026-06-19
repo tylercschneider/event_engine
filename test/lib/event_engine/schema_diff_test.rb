@@ -19,4 +19,10 @@ class EventEngineSchemaDiffTest < ActiveSupport::TestCase
 
     assert_includes diff.to_s, "+b"
   end
+
+  test "renders a removed line prefixed with a minus" do
+    diff = EventEngine::SchemaDiff.new(expected: "a\nb\n", actual: "a\n")
+
+    assert_includes diff.to_s, "-b"
+  end
 end
