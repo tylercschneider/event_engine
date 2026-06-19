@@ -21,5 +21,15 @@ module EventEngine
 
       refute definition.valid_schema?
     end
+
+    test "schema carries the declared subject" do
+      definition = Class.new(EventEngine::EventDefinition) do
+        event_name :processed
+        event_type :domain
+        subject :feeding
+      end
+
+      assert_equal :feeding, definition.schema.subject
+    end
   end
 end
