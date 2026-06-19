@@ -6,7 +6,7 @@ module EventEngine
     end
 
     def changed?
-      false
+      @expected != @actual
     end
   end
 end

@@ -7,4 +7,10 @@ class EventEngineSchemaDiffTest < ActiveSupport::TestCase
 
     assert_not diff.changed?
   end
+
+  test "reports a change when expected and actual differ" do
+    diff = EventEngine::SchemaDiff.new(expected: "a\n", actual: "b\n")
+
+    assert diff.changed?
+  end
 end
