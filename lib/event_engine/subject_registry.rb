@@ -55,5 +55,13 @@ module EventEngine
     def [](name)
       @subjects[name]
     end
+
+    # Whether a subject with the given name has been declared.
+    #
+    # @param name [Symbol]
+    # @return [Boolean]
+    def registered?(name)
+      @subjects.key?(name)
+    end
   end
 end
