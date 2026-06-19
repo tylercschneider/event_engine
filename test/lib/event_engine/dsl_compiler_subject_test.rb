@@ -16,4 +16,15 @@ class DslCompilerSubjectTest < ActiveSupport::TestCase
       EventEngine::DslCompiler.compile([definition])
     end
   end
+
+  test "compile permits a definition whose subject is registered" do
+    EventEngine.define_subjects { subject :feeding }
+    definition = Class.new(EventEngine::EventDefinition) do
+      event_name :processed
+      event_type :domain
+      subject :feeding
+    end
+
+    assert_equal [:processed], EventEngine::DslCompiler.compile([definition]).events
+  end
 end
