@@ -51,5 +51,19 @@ module EventEngine
 
       assert_equal [[:export], [:export], [:export]], required_inputs
     end
+
+    test "shared payload fields appear on every generated event" do
+      definition = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        input :export
+        required_payload :format, from: :export, attr: :format
+        lifecycle :started, :completed, :failed
+      end
+
+      payload_fields = definition.generated_events.map { |event| event.schema.payload_fields }
+
+      assert_equal [[{ name: :format, required: true, from: :export, attr: :format }]] * 3, payload_fields
+    end
   end
 end

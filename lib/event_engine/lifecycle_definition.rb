@@ -52,6 +52,14 @@ module EventEngine
           template.inputs.each do |name, kind|
             kind == :required ? input(name) : optional_input(name)
           end
+
+          template.payload_fields.each do |field|
+            if field[:required]
+              required_payload field[:name], from: field[:from], attr: field[:attr]
+            else
+              optional_payload field[:name], from: field[:from], attr: field[:attr]
+            end
+          end
         end
       end
     end
