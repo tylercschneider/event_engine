@@ -89,5 +89,17 @@ module EventEngine
 
       assert_equal hand_written.schema.to_ruby, family.generated_events.first.schema.to_ruby
     end
+
+    test "generated events are discoverable as EventDefinition descendants" do
+      definition = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        lifecycle :started, :completed, :failed
+      end
+
+      assert definition.generated_events.all? { |event|
+        EventEngine::EventDefinition.descendants.include?(event)
+      }
+    end
   end
 end
