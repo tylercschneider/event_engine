@@ -34,6 +34,10 @@ module EventEngine
         @generated_events ||= Array(@verbs).map { |verb| build_event(verb) }
       end
 
+      def materialize_all!
+        subclasses.flat_map(&:generated_events)
+      end
+
       def declared_subject
         @subject
       end
