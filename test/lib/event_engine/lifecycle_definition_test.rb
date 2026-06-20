@@ -25,5 +25,18 @@ module EventEngine
 
       assert_equal [:export_csv, :export_csv, :export_csv], subjects
     end
+
+    test "every generated event carries the declared process_type" do
+      definition = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        process_type :broker
+        lifecycle :started, :completed, :failed
+      end
+
+      process_types = definition.generated_events.map { |event| event.schema.process_type }
+
+      assert_equal [:broker, :broker, :broker], process_types
+    end
   end
 end
