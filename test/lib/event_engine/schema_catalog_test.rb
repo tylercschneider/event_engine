@@ -48,4 +48,13 @@ class SchemaCatalogTest < ActiveSupport::TestCase
 
     assert_includes catalog.to_markdown, "- Type: domain"
   end
+
+  test "includes the subject with its area and owner" do
+    subjects = EventEngine::SubjectRegistry.define do
+      subject :feeding, area: :farm, owner: :data_team
+    end
+    catalog = catalog_for(schema(event_name: :cow_fed, subject: :feeding), subjects: subjects)
+
+    assert_includes catalog.to_markdown, "- Subject: feeding (area: farm, owner: data_team)"
+  end
 end

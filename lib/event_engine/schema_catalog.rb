@@ -20,8 +20,23 @@ module EventEngine
     def section(schema)
       [
         "## #{schema.event_name} (v#{schema.event_version})",
-        "- Type: #{schema.event_type}"
-      ].join("\n")
+        "- Type: #{schema.event_type}",
+        subject_line(schema)
+      ].compact.join("\n")
+    end
+
+    def subject_line(schema)
+      return nil unless schema.subject
+
+      details = subject_details(schema.subject)
+      details.empty? ? "- Subject: #{schema.subject}" : "- Subject: #{schema.subject} (#{details})"
+    end
+
+    def subject_details(name)
+      registered = @subject_registry[name]
+      return "" unless registered
+
+      registered.metadata.map { |key, value| "#{key}: #{value}" }.join(", ")
     end
   end
 end
