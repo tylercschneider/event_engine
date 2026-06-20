@@ -38,6 +38,7 @@ module EventEngine
         Class.new(EventDefinition) do
           event_name :"#{template.declared_subject}_#{verb}"
           event_type template.declared_event_type
+          subject template.declared_subject
         end
       end
     end
