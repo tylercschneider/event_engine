@@ -48,6 +48,10 @@ module EventEngine
           event_type template.declared_event_type
           subject template.declared_subject
           process_type template.declared_process_type if template.declared_process_type
+
+          template.inputs.each do |name, kind|
+            kind == :required ? input(name) : optional_input(name)
+          end
         end
       end
     end

@@ -38,5 +38,18 @@ module EventEngine
 
       assert_equal [:broker, :broker, :broker], process_types
     end
+
+    test "shared required inputs appear on every generated event" do
+      definition = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        input :export
+        lifecycle :started, :completed, :failed
+      end
+
+      required_inputs = definition.generated_events.map { |event| event.schema.required_inputs }
+
+      assert_equal [[:export], [:export], [:export]], required_inputs
+    end
   end
 end
