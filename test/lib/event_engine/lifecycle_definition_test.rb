@@ -130,6 +130,23 @@ module EventEngine
       assert_equal [:format], field_names
     end
 
+    test "an on-verb block can declare a verb-specific input" do
+      definition = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        input :export
+        lifecycle :started, :failed
+
+        on :failed do
+          input :error
+        end
+      end
+
+      failed = definition.generated_events.last
+
+      assert_equal [:export, :error], failed.schema.required_inputs
+    end
+
     test "generated events are discoverable as EventDefinition descendants" do
       definition = Class.new(EventEngine::LifecycleDefinition) do
         subject :export_csv
