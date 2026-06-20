@@ -65,5 +65,29 @@ module EventEngine
 
       assert_equal [[{ name: :format, required: true, from: :export, attr: :format }]] * 3, payload_fields
     end
+
+    test "a generated event dumps identically to a hand-written equivalent" do
+      family = Class.new(EventEngine::LifecycleDefinition) do
+        subject :export_csv
+        event_type :product
+        input :export
+        optional_input :requester
+        required_payload :format, from: :export, attr: :format
+        optional_payload :requested_by, from: :requester, attr: :name
+        lifecycle :completed
+      end
+
+      hand_written = Class.new(EventEngine::EventDefinition) do
+        event_name :export_csv_completed
+        event_type :product
+        subject :export_csv
+        input :export
+        optional_input :requester
+        required_payload :format, from: :export, attr: :format
+        optional_payload :requested_by, from: :requester, attr: :name
+      end
+
+      assert_equal hand_written.schema.to_ruby, family.generated_events.first.schema.to_ruby
+    end
   end
 end
