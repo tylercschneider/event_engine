@@ -147,6 +147,18 @@ module EventEngine
       assert_equal [:export, :error], failed.schema.required_inputs
     end
 
+    test "materialize_all! returns the generated events of every lifecycle definition" do
+      Class.new(EventEngine::LifecycleDefinition) do
+        subject :materialize_demo
+        event_type :product
+        lifecycle :started
+      end
+
+      names = EventEngine::LifecycleDefinition.materialize_all!.map { |event| event.schema.event_name }
+
+      assert_includes names, :materialize_demo_started
+    end
+
     test "generated events are discoverable as EventDefinition descendants" do
       definition = Class.new(EventEngine::LifecycleDefinition) do
         subject :export_csv
