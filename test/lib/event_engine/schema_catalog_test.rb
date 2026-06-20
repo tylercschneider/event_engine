@@ -36,4 +36,10 @@ class SchemaCatalogTest < ActiveSupport::TestCase
 
     assert_includes catalog.to_markdown, "# Event Catalog"
   end
+
+  test "lists each event with its version" do
+    catalog = catalog_for(schema(event_name: :cow_fed))
+
+    assert_includes catalog.to_markdown, "## cow_fed (v1)"
+  end
 end
