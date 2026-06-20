@@ -19,4 +19,13 @@ class SchemaCompatibilityTest < ActiveSupport::TestCase
 
     assert_empty compatibility.breaking_changes
   end
+
+  test "removing a required payload field is a breaking change" do
+    old = schema([{ name: :weight, required: true, from: :cow, attr: :weight }])
+    new = schema([])
+
+    compatibility = EventEngine::SchemaCompatibility.new(old: old, new: new)
+
+    assert_includes compatibility.breaking_changes, "required payload field removed: weight"
+  end
 end
