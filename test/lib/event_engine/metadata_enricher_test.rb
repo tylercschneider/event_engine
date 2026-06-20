@@ -46,5 +46,13 @@ module EventEngine
 
       assert_equal "1.0", event.metadata[:app_version]
     end
+
+    test "call-site metadata wins over the default envelope on conflict" do
+      EventEngine.configuration.metadata_defaults = -> { { actor_id: 1 } }
+
+      event = EventEngine.cow_fed(cow: OpenStruct.new(weight: 500), metadata: { actor_id: 99 })
+
+      assert_equal 99, event.metadata[:actor_id]
+    end
   end
 end
