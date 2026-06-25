@@ -14,8 +14,8 @@ storage live in companion gems that register themselves as handlers:
 | Gem | Responsibility | Add it when |
 |---|---|---|
 | **`event_engine`** (this gem) | Define, compile, emit, dispatch | Always — it's the core |
-| [`event_engine-delivery`](https://github.com/tylercschneider/event_engine-delivery) | Transactional outbox, retries, dead-letters, transports (Kafka), dashboard, cloud reporter | You need to deliver events reliably (in-process or to a broker) |
-| [`event_engine-store`](https://github.com/tylercschneider/event_engine-store) | Durable, append-only event log + event-sourcing replay & projections | You need a permanent record of every event / event sourcing |
+| [`event_engine-delivery`](https://github.com/DYB-Development/event_engine-delivery) | Transactional outbox, retries, dead-letters, transports (Kafka), dashboard, cloud reporter | You need to deliver events reliably (in-process or to a broker) |
+| [`event_engine-store`](https://github.com/DYB-Development/event_engine-store) | Durable, append-only event log + event-sourcing replay & projections | You need a permanent record of every event / event sourcing |
 
 You can run the core gem **by itself** with your own handlers — see
 [The handler extension point](#the-handler-extension-point).
