@@ -59,4 +59,28 @@ class SchemaDriftGuardEnforcementTest < ActiveSupport::TestCase
   ensure
     file.unlink
   end
+
+  test "raises when the generated helpers file is out of sync" do
+    schema_file = Tempfile.new("event_schema.rb")
+    helpers_file = Tempfile.new("event_engine_helpers.rb")
+
+    EventEngine::EventSchemaDumper.dump!(
+      definitions: [CowFed],
+      path: schema_file.path,
+      helpers_path: helpers_file.path
+    )
+
+    File.write(helpers_file.path, "# stale helpers\n")
+
+    assert_raises(EventEngine::SchemaDriftGuard::DriftError) do
+      EventEngine::SchemaDriftGuard.check!(
+        schema_path: schema_file.path,
+        definitions: [CowFed],
+        helpers_path: helpers_file.path
+      )
+    end
+  ensure
+    schema_file.unlink
+    helpers_file.unlink
+  end
 end
