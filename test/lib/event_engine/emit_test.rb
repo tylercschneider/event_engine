@@ -51,5 +51,29 @@ module EventEngine
 
       assert_equal 1, received.size
     end
+
+    test "emit passes aggregate fields through to the built event" do
+      event = EventEngine.emit(
+        :cow_fed,
+        inputs: { cow: OpenStruct.new(weight: 500) },
+        aggregate_type: "Cow",
+        aggregate_id: "cow-7",
+        aggregate_version: 2
+      )
+
+      assert_equal "cow-7", event.aggregate_id
+    end
+
+    test "emit raises when a required input is missing" do
+      assert_raises(ArgumentError) do
+        EventEngine.emit(:cow_fed, inputs: {})
+      end
+    end
+
+    test "emit raises when an unknown input is given" do
+      assert_raises(ArgumentError) do
+        EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500), horse: 1 })
+      end
+    end
   end
 end
