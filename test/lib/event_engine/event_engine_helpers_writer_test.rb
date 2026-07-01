@@ -31,5 +31,11 @@ module EventEngine
 
       assert_includes source, "def cow_fed"
     end
+
+    test "a required input becomes a required keyword" do
+      source = generate(schema_with(required_inputs: [:cow]))
+
+      assert_includes source, "cow:,"
+    end
   end
 end
