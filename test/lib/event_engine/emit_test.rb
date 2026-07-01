@@ -42,5 +42,14 @@ module EventEngine
 
       assert_equal({ weight: 500 }, event.payload)
     end
+
+    test "emit dispatches the built event to a registered handler" do
+      received = []
+      EventEngine.register_handler(->(event) { received << event }, levels: :all)
+
+      EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500) })
+
+      assert_equal 1, received.size
+    end
   end
 end
