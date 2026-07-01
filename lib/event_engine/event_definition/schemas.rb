@@ -32,6 +32,24 @@ module EventEngine
           )
         end
 
+        # Serializes the schema to a plain-data hash for the neutral JSON artifact.
+        #
+        # @return [Hash]
+        def to_h
+          {
+            event_name: event_name,
+            event_version: event_version,
+            event_type: event_type,
+            process_type: process_type,
+            subject: subject,
+            domain: domain,
+            required_inputs: required_inputs,
+            optional_inputs: optional_inputs,
+            payload_fields: payload_fields.map { |field| payload_field_h(field) },
+            fingerprint: fingerprint
+          }
+        end
+
         # Serializes the schema to a Ruby source string for the schema file.
         #
         # @return [String]
@@ -63,6 +81,15 @@ module EventEngine
               .map { |h| h.transform_values { |v| v.to_s } }
               .sort_by { |h| h[:name].to_s }
           }.to_json
+        end
+
+        def payload_field_h(field)
+          {
+            name: field[:name],
+            from: field[:from],
+            attr: field[:attr],
+            required: field[:required]
+          }
         end
 
         def ruby_hash(hash)
