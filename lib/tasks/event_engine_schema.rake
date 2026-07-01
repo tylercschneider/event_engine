@@ -39,11 +39,13 @@ namespace :event_engine do
       
       path = Rails.root.join("db/event_schema.rb")
       helpers_path = Rails.root.join("db/event_engine_helpers.rb")
+      json_path = Rails.root.join("db/event_schema.json")
 
       EventEngine::EventSchemaDumper.dump!(
         definitions: descendants,
         path: path,
-        helpers_path: helpers_path
+        helpers_path: helpers_path,
+        json_path: json_path
       )
 
       puts "Dumping EventEngine schema to #{path}"
