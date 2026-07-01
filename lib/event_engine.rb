@@ -37,6 +37,12 @@ require "event_engine/the_local"
 module EventEngine
   mattr_accessor :_installed_event_helpers, default: Set.new
   mattr_accessor :active_registry
+
+  ENVELOPE_KEYS = %i[
+    event_version occurred_at metadata idempotency_key
+    aggregate_type aggregate_id aggregate_version
+  ].freeze
+
   class << self
     # Returns the current configuration instance.
     #
@@ -139,48 +145,18 @@ module EventEngine
     #
     # @param registry [SchemaRegistry] the loaded registry
     def install_helpers(registry:)
+      self.active_registry = registry
+
       _installed_event_helpers.each do |method_name|
         singleton_class.remove_method(method_name) if singleton_class.method_defined?(method_name)
       end
       _installed_event_helpers.clear
 
       registry.events.each do |event_name|
-        schema = registry.schema(event_name)
-
-        required = schema.required_inputs
-        optional = schema.optional_inputs
-
         define_singleton_method(event_name) do |**args|
-          event_version = args.delete(:event_version)
-          occurred_at = args.delete(:occurred_at)
-          metadata = args.delete(:metadata)
-          idempotency_key = args.delete(:idempotency_key)
-          aggregate_type = args.delete(:aggregate_type)
-          aggregate_id = args.delete(:aggregate_id)
-          aggregate_version = args.delete(:aggregate_version)
-
-          input_keys = required + optional
-          inputs = args.slice(*input_keys)
-
-          missing = required - inputs.keys
-          raise ArgumentError, "Missing required inputs: #{missing.join(', ')}" if missing.any?
-
-          unknown = args.keys - input_keys
-          raise ArgumentError, "Unknown inputs: #{unknown.join(', ')}" if unknown.any?
-
-          schema = registry.schema(event_name, version: event_version)
-          attrs = EventBuilder.build(schema: schema, data: inputs)
-          attrs[:occurred_at] = occurred_at || Time.current
-          attrs[:metadata] = EventEngine.enriched_metadata(metadata)
-          attrs[:idempotency_key] = idempotency_key || SecureRandom.uuid
-          attrs[:aggregate_type] = aggregate_type
-          attrs[:aggregate_id] = aggregate_id
-          attrs[:aggregate_version] = aggregate_version
-          attrs[:process_type] = schema.process_type
-          attrs[:subject] = schema.subject
-          attrs[:domain] = schema.domain
-
-          EventEngine.dispatch(Event.new(**attrs))
+          envelope = args.slice(*ENVELOPE_KEYS)
+          inputs = args.except(*ENVELOPE_KEYS)
+          EventEngine.emit(event_name, inputs: inputs, **envelope)
         end
 
         _installed_event_helpers << event_name
