@@ -75,5 +75,37 @@ module EventEngine
         EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500), horse: 1 })
       end
     end
+
+    test "emit selects a specific version via event_version:" do
+      EventEngine.schema_registry = two_version_registry
+
+      event = EventEngine.emit(
+        :barn_built,
+        inputs: { barn: OpenStruct.new(color: "red", size: "large") },
+        event_version: 1
+      )
+
+      assert_equal 1, event.event_version
+    end
+
+    def two_version_registry
+      event_schema = EventSchema.new
+      event_schema.register(barn_schema(version: 1, field: :color))
+      event_schema.register(barn_schema(version: 2, field: :size))
+      event_schema.finalize!
+
+      SchemaRegistry.new.tap { |registry| registry.load_from_schema!(event_schema) }
+    end
+
+    def barn_schema(version:, field:)
+      EventDefinition::Schema.new(
+        event_name: :barn_built,
+        event_version: version,
+        event_type: :domain,
+        required_inputs: [:barn],
+        optional_inputs: [],
+        payload_fields: [{ name: field, from: :barn, attr: field }]
+      )
+    end
   end
 end
