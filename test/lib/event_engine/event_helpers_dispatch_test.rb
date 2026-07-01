@@ -3,8 +3,6 @@ require "ostruct"
 
 module EventEngine
   class EventHelpersDispatchTest < ActiveSupport::TestCase
-    include EventEngineTestHelpers
-
     class CowFed < EventDefinition
       event_name :cow_fed
       event_type :domain
@@ -17,7 +15,7 @@ module EventEngine
     end
 
     setup do
-      @helpers_snapshot = snapshot_event_engine_helpers
+      @previous_registry = EventEngine.schema_registry
 
       EventEngine.define_subjects { subject :feeding }
 
@@ -33,23 +31,22 @@ module EventEngine
       event_schema.finalize!
 
       registry = SchemaRegistry.new
-      registry.reset!
       registry.load_from_schema!(event_schema)
 
-      EventEngine.install_helpers(registry: registry)
+      EventEngine.schema_registry = registry
     end
 
     teardown do
-      restore_event_engine_helpers(@helpers_snapshot)
+      EventEngine.schema_registry = @previous_registry
       EventEngine.reset_handlers!
       EventEngine.reset_subjects!
     end
 
-    test "the helper dispatches a built event to a registered handler" do
+    test "emit dispatches a built event to a registered handler" do
       received = []
       EventEngine.register_handler(->(event) { received << event }, levels: :all)
 
-      EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+      EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500) })
 
       assert_equal 1, received.size
     end
@@ -58,7 +55,7 @@ module EventEngine
       received = []
       EventEngine.register_handler(->(event) { received << event }, levels: :all)
 
-      EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+      EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500) })
 
       assert_equal :broker, received.first.process_type
     end
@@ -67,7 +64,7 @@ module EventEngine
       received = []
       EventEngine.register_handler(->(event) { received << event }, levels: :all)
 
-      EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+      EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500) })
 
       assert_equal :feeding, received.first.subject
     end
@@ -76,7 +73,7 @@ module EventEngine
       received = []
       EventEngine.register_handler(->(event) { received << event }, levels: :all)
 
-      EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+      EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500) })
 
       assert_equal :sales, received.first.domain
     end

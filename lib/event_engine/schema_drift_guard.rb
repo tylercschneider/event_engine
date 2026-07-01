@@ -1,37 +1,59 @@
 require "event_engine/schema_diff"
+require "tmpdir"
 
 module EventEngine
   class SchemaDriftGuard
     class DriftError < StandardError; end
 
-    def self.check!(schema_path:, definitions:)
+    def self.check!(schema_path:, definitions:, helpers_path: nil)
       raise DriftError, "Schema file does not exist: #{schema_path}" unless File.exist?(schema_path)
 
-      committed = File.read(schema_path)
-      regenerated = dump_to_string(definitions)
+      regenerated = regenerate(definitions, helpers: !helpers_path.nil?)
 
-      return true if committed == regenerated
+      check_drift!(schema_path, regenerated[:schema], "schema")
+      check_helpers_drift!(helpers_path, regenerated[:helpers]) if helpers_path
+
+      true
+    end
+
+    def self.check_helpers_drift!(helpers_path, regenerated)
+      raise DriftError, "Helpers file does not exist: #{helpers_path}" unless File.exist?(helpers_path)
+
+      check_drift!(helpers_path, regenerated, "helpers")
+    end
+
+    def self.check_drift!(path, regenerated, label)
+      committed = File.read(path)
+      return if committed == regenerated
 
       raise DriftError, <<~MSG
-        EventEngine schema drift detected.
+        EventEngine #{label} drift detected.
 
-        The DSL definitions do not match #{schema_path}.
+        The DSL definitions do not match #{path}.
 
         #{SchemaDiff.new(expected: committed, actual: regenerated)}
         Run:
           bin/rails event_engine:schema:dump
 
-        And commit the updated schema file.
+        And commit the updated file.
       MSG
     end
 
-    def self.dump_to_string(definitions)
-      Tempfile.create("event_schema") do |file|
+    def self.regenerate(definitions, helpers:)
+      Dir.mktmpdir do |dir|
+        schema_path = File.join(dir, "event_schema.rb")
+        helpers_path = File.join(dir, "event_engine_helpers.rb")
+
         EventEngine::EventSchemaDumper.dump!(
           definitions: definitions,
-          path: file.path
+          path: schema_path,
+          helpers_path: helpers ? helpers_path : nil
         )
-        File.read(file.path)
+
+        {
+          schema: File.read(schema_path),
+          helpers: helpers ? File.read(helpers_path) : nil
+        }
       end
     end
   end

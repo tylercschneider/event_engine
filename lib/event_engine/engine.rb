@@ -2,20 +2,15 @@ module EventEngine
   class Engine < ::Rails::Engine
     isolate_namespace EventEngine
 
-    initializer "event_engine.load_schema_and_install_helpers" do |app|
+    initializer "event_engine.load_schema_and_helpers" do |app|
       app.config.after_initialize do
         schema_path = Rails.root.join("db", "event_schema.rb")
+        helpers_path = Rails.root.join("db", "event_engine_helpers.rb")
 
         if File.exist?(schema_path)
-          Engine.send(
-            :load_schema_and_install_helpers,
-            schema_path: schema_path
-          )
+          Engine.send(:boot!, schema_path: schema_path, helpers_path: helpers_path)
         else
-          Engine.send(
-            :handle_missing_schema!,
-            schema_path
-          )
+          Engine.send(:handle_missing_schema!, schema_path)
         end
       end
     end
@@ -23,11 +18,13 @@ module EventEngine
     class << self
       private
 
-      def load_schema_and_install_helpers(schema_path:)
+      def boot!(schema_path:, helpers_path:)
         EventEngine.boot_from_schema!(
           schema_path: schema_path,
           registry: EventEngine::SchemaRegistry.new
         )
+
+        load helpers_path if File.exist?(helpers_path)
       end
 
       def handle_missing_schema!(schema_path)
