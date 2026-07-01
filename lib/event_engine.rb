@@ -116,7 +116,7 @@ module EventEngine
     end
 
     def register_handler(handler, levels:)
-      handler_registry.register(handler, levels: levels)
+      handler_registry.register(handler, process_types: levels)
     end
 
     def dispatch(event)
