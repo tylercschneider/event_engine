@@ -45,4 +45,16 @@ class DslCompilerTest < ActiveSupport::TestCase
       EventEngine::DslCompiler.compile([sales_deal, marketing_deal])
     end
   end
+
+  test "raises when an input name collides with a reserved envelope key" do
+    colliding = Class.new(EventEngine::EventDefinition) do
+      event_name :cow_fed
+      event_type :domain
+      input :metadata
+    end
+
+    assert_raises(EventEngine::DslCompiler::ReservedInputNameError) do
+      EventEngine::DslCompiler.compile([colliding])
+    end
+  end
 end
