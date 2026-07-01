@@ -19,7 +19,7 @@ class EngineBootTest < ActiveSupport::TestCase
     EventEngine::EventSchemaDumper.dump!(definitions: [CowFed], path: schema_path)
 
     EventEngine::Engine.send(
-      :load_schema_and_install_helpers,
+      :load_schema_and_helpers,
       schema_path: schema_path
     )
 
