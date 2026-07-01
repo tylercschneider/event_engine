@@ -59,6 +59,31 @@ module EventEngine
       @handler_registry ||= HandlerRegistry.new
     end
 
+    def schema_registry
+      @schema_registry ||= SchemaRegistry.new
+    end
+
+    attr_writer :schema_registry
+
+    def emit(event_name, inputs:, event_version: nil, occurred_at: nil,
+             metadata: nil, idempotency_key: nil, aggregate_type: nil,
+             aggregate_id: nil, aggregate_version: nil)
+      schema = schema_registry.schema(event_name, version: event_version)
+
+      attrs = EventBuilder.build(schema: schema, data: inputs)
+      attrs[:occurred_at] = occurred_at || Time.current
+      attrs[:metadata] = enriched_metadata(metadata)
+      attrs[:idempotency_key] = idempotency_key || SecureRandom.uuid
+      attrs[:aggregate_type] = aggregate_type
+      attrs[:aggregate_id] = aggregate_id
+      attrs[:aggregate_version] = aggregate_version
+      attrs[:process_type] = schema.process_type
+      attrs[:subject] = schema.subject
+      attrs[:domain] = schema.domain
+
+      dispatch(Event.new(**attrs))
+    end
+
     def subject_registry
       @subject_registry ||= SubjectRegistry.new
     end
