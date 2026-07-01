@@ -34,4 +34,21 @@ class EventSchemaJsonWriterTest < ActiveSupport::TestCase
   ensure
     file.unlink
   end
+
+  test "produces byte-identical output when the schema is unchanged" do
+    es = EventEngine::EventSchema.new
+    es.register(build_schema(event_name: :cow_fed, version: 1))
+    es.finalize!
+
+    first = Tempfile.new(["event_schema", ".json"])
+    second = Tempfile.new(["event_schema", ".json"])
+
+    EventEngine::EventSchemaJsonWriter.write(first.path, es)
+    EventEngine::EventSchemaJsonWriter.write(second.path, es)
+
+    assert_equal File.read(first.path), File.read(second.path)
+  ensure
+    first.unlink
+    second.unlink
+  end
 end
