@@ -42,7 +42,7 @@ Duplicate input names raise `ArgumentError`; payload `from:` must reference a
 declared input.
 
 **process_type** — core stamps this symbol onto every emitted event but does not act
-on it. Which handlers receive an event is decided by each handler's `levels:`. The
+on it. Which handlers receive an event is decided by each handler's `process_types:`. The
 values:
 
 | value | intent |
@@ -77,7 +77,7 @@ event's `payload` is symbol-keyed.
 **Register handlers** — a handler is any object responding to `call(event)`:
 
 ```ruby
-EventEngine.register_handler(handler, levels: [:inline, :durable])  # or levels: :all
+EventEngine.register_handler(handler, process_types: [:inline, :durable])  # or process_types: :all
 EventEngine.dispatch(event)     # fan an event out (emit helpers call this)
 EventEngine.reset_handlers!     # clear all handlers
 ```
