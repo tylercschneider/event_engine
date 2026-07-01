@@ -41,5 +41,11 @@ module EventEngine
 
       assert_equal 500, event.payload[:weight]
     end
+
+    test "emit raises when given an unknown input" do
+      assert_raises(ArgumentError) do
+        EventEngine.emit(:cow_fed, inputs: { cow: OpenStruct.new(weight: 500), bogus: 1 })
+      end
+    end
   end
 end
