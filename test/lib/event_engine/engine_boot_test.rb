@@ -1,39 +1,44 @@
 require "test_helper"
-require "tempfile"
+require "tmpdir"
+require "ostruct"
 
 class EngineBootTest < ActiveSupport::TestCase
   include EventEngineTestHelpers
 
-  test "engine loads schema file into registry and installs helpers" do
-    helpers_snapshot = snapshot_event_engine_helpers
-    file = Tempfile.new(["event_schema", ".rb"])
-
-    file.write(<<~RUBY)
-      EventEngine::EventSchema.define do |schema|
-        schema.register(
-          EventEngine::EventDefinition::Schema.new(
-            event_name: :cow_fed,
-            event_version: 1,
-            event_type: :domain,
-            required_inputs: [:cow],
-            optional_inputs: [],
-            payload_fields: [{ name: :weight, from: :cow, attr: :weight }]
-          )
+  def cow_fed_schema
+    EventEngine::EventSchema.new.tap do |event_schema|
+      event_schema.register(
+        EventEngine::EventDefinition::Schema.new(
+          event_name: :cow_fed,
+          event_version: 1,
+          event_type: :domain,
+          required_inputs: [:cow],
+          optional_inputs: [],
+          payload_fields: [{ name: :weight, from: :cow, attr: :weight }]
         )
-      end
-    RUBY
-    file.close
-
-    assert_nothing_raised do
-      EventEngine::Engine.send(
-        :load_schema_and_install_helpers,
-        schema_path: file.path
       )
+      event_schema.finalize!
     end
+  end
 
-    assert EventEngine.respond_to?(:cow_fed)
+  test "engine boot loads the schema and generated helpers so an event can be emitted" do
+    helpers_snapshot = snapshot_event_engine_helpers
+    previous_registry = EventEngine.schema_registry
+    event_schema = cow_fed_schema
+
+    Dir.mktmpdir do |dir|
+      schema_path = File.join(dir, "event_schema.rb")
+      helpers_path = File.join(dir, "event_engine_helpers.rb")
+      EventEngine::EventSchemaWriter.write(schema_path, event_schema)
+      EventEngine::EventEngineHelpersWriter.write(helpers_path, event_schema)
+
+      EventEngine::Engine.send(:boot!, schema_path: schema_path, helpers_path: helpers_path)
+
+      event = EventEngine.cow_fed(cow: OpenStruct.new(weight: 500))
+      assert_equal 500, event.payload[:weight]
+    end
   ensure
     restore_event_engine_helpers(helpers_snapshot)
-    file.unlink if file
+    EventEngine.schema_registry = previous_registry
   end
 end
