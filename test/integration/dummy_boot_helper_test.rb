@@ -11,4 +11,8 @@ class DummyBootHelperTest < ActiveSupport::TestCase
 
     assert_equal "W-1", event.payload[:sku]
   end
+
+  test "the generated helper raises when a required input is missing" do
+    assert_raises(ArgumentError) { EventEngine.widget_created }
+  end
 end
