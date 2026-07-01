@@ -75,5 +75,19 @@ module EventEngine
       EventEngine.schema_registry = previous_registry
       EventEngine.reset_handlers!
     end
+
+    test "the generated signature raises a native ArgumentError for a missing required input" do
+      helpers_snapshot = snapshot_event_engine_helpers
+      event_schema = schema_with(required_inputs: [:cow])
+
+      Tempfile.create(["helpers", ".rb"]) do |file|
+        EventEngineHelpersWriter.write(file.path, event_schema)
+        load file.path
+
+        assert_raises(ArgumentError) { EventEngine.cow_fed }
+      end
+    ensure
+      restore_event_engine_helpers(helpers_snapshot)
+    end
   end
 end
